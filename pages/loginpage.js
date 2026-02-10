@@ -1,4 +1,4 @@
-class LoginPage {
+export default class LoginPage {
     constructor(page) {
         this.page = page;
         this.usernameInput = page.locator(`//input[@type='email']`);
@@ -9,11 +9,11 @@ class LoginPage {
 
     async loginNetsfere()
     {
+        // we have to pass the data as parameters
         await this.usernameInput.fill('atg@sanu.netsferetest.org')
         await this.continueButton.click()
         await this.passwordInput.fill('Abcd@1234567')
         await this.loginButton.click()
+        // await this.page.pause()
     }
 }
-
-module.exports =  LoginPage ;

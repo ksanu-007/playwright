@@ -32,7 +32,7 @@ export default defineConfig({
 headless: false,
       screenshot: 'only-on-failure', // Automatically capture screenshots on failure
       trace: 'retain-on-failure', // Capture traces on failure
-      video: 'retain-on-failure' 
+      video: 'on'
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
   
   },

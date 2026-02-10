@@ -17,3 +17,5 @@ export default class commonMethod {
         await this.page.fill(locator, value);
     }
 }
+
+module.exports = commonMethod;
