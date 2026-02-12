@@ -9,7 +9,8 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "@types/node": "^25.0.9"
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.0.9",
+    "allure-playwright": "^3.4.5"
   }
 }

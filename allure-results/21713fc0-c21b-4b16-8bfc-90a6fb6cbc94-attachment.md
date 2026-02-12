@@ -1,0 +1,472 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4] [cursor=pointer]:
+      - img "User Avatar" [ref=e5]
+      - generic [ref=e6]:
+        - generic [ref=e7]: atg
+        - generic [ref=e8]: atg
+    - link " Dashboard" [ref=e10] [cursor=pointer]:
+      - /url: "#/Dashboard"
+      - generic [ref=e11]:
+        - generic [ref=e12]: 
+        - generic [ref=e13]: Dashboard
+    - link " Analytics" [ref=e14] [cursor=pointer]:
+      - /url: "#/Analytics"
+      - generic [ref=e15]:
+        - generic [ref=e16]: 
+        - generic [ref=e17]: Analytics
+    - generic [ref=e18] [cursor=pointer]:
+      - generic [ref=e19]: 
+      - generic [ref=e20]: Users & Groups
+      - generic [ref=e22]: 
+    - list [ref=e23]:
+      - listitem [ref=e24]:
+        - link "Active Users" [ref=e25] [cursor=pointer]:
+          - /url: "#/Active Users"
+          - generic [ref=e27]: Active Users
+      - listitem [ref=e28]:
+        - link "Groups" [ref=e29] [cursor=pointer]:
+          - /url: "#/Teams"
+          - generic [ref=e31]: Groups
+      - listitem [ref=e32]:
+        - link "Devices" [ref=e33] [cursor=pointer]:
+          - /url: "#/Devices"
+          - generic [ref=e35]: Devices
+      - listitem [ref=e36]:
+        - link "Invited Users" [ref=e37] [cursor=pointer]:
+          - /url: "#/Invited Users"
+          - generic [ref=e39]: Invited Users
+      - listitem [ref=e40]:
+        - link "Disabled Users" [ref=e41] [cursor=pointer]:
+          - /url: "#/Disable Users"
+          - generic [ref=e43]: Disabled Users
+    - link " Broadcast" [ref=e44] [cursor=pointer]:
+      - /url: "#/Broadcast"
+      - generic [ref=e45]:
+        - generic [ref=e46]: 
+        - generic [ref=e47]: Broadcast
+    - generic [ref=e48] [cursor=pointer]:
+      - generic [ref=e49]: 
+      - generic [ref=e50]: Logs
+      - generic [ref=e52]: 
+    - list:
+      - listitem [ref=e53]:
+        - link "Device Wipe Log" [ref=e54] [cursor=pointer]:
+          - /url: "#/Device Wipe Log"
+          - generic [ref=e56]: Device Wipe Log
+      - listitem [ref=e57]:
+        - link "Admin Actions Log" [ref=e58] [cursor=pointer]:
+          - /url: "#/Admin Actions Log"
+          - generic [ref=e60]: Admin Actions Log
+      - listitem [ref=e61]:
+        - link "User History Log" [ref=e62] [cursor=pointer]:
+          - /url: "#/User History Log"
+          - generic [ref=e64]: User History Log
+    - generic [ref=e65] [cursor=pointer]:
+      - img [ref=e66]
+      - generic [ref=e67]: Net-C AI
+      - generic [ref=e69]: 
+    - list:
+      - listitem [ref=e70]:
+        - link "Add Documents" [ref=e71] [cursor=pointer]:
+          - /url: "#/Add Documents"
+          - generic [ref=e73]: Add Documents
+      - listitem [ref=e74]:
+        - link "View Documents" [ref=e75] [cursor=pointer]:
+          - /url: "#/View Documents"
+          - generic [ref=e77]: View Documents
+    - generic [ref=e79] [cursor=pointer]:
+      - generic [ref=e80]: 
+      - generic [ref=e81]: Settings
+      - generic [ref=e83]: 
+    - list:
+      - listitem [ref=e84]:
+        - link "Organization" [ref=e85] [cursor=pointer]:
+          - /url: "#/Organization"
+          - generic [ref=e87]: Organization
+      - listitem [ref=e88]:
+        - link "Messaging" [ref=e89] [cursor=pointer]:
+          - /url: "#/Messaging"
+          - generic [ref=e91]: Messaging
+      - listitem [ref=e92]:
+        - link "Security Policy" [ref=e93] [cursor=pointer]:
+          - /url: "#/Security Policy"
+          - generic [ref=e95]: Security Policy
+      - listitem [ref=e96]:
+        - link "Contact Attributes" [ref=e97] [cursor=pointer]:
+          - /url: "#/Contact Attributes"
+          - generic [ref=e99]: Contact Attributes
+      - listitem [ref=e100]:
+        - link "Active Directory" [ref=e101] [cursor=pointer]:
+          - /url: "#/Active Directory"
+          - generic [ref=e103]: Active Directory
+      - listitem [ref=e104]:
+        - link "Archiving" [ref=e105] [cursor=pointer]:
+          - /url: "#/Archiving"
+          - generic [ref=e107]: Archiving
+      - listitem [ref=e108]:
+        - link "Domain Names" [ref=e109] [cursor=pointer]:
+          - /url: "#/Domain Names"
+          - generic [ref=e111]: Domain Names
+      - listitem [ref=e112]:
+        - link "Identity Providers" [ref=e113] [cursor=pointer]:
+          - /url: "#/Identity Providers"
+          - generic [ref=e115]: Identity Providers
+      - listitem [ref=e116]:
+        - link "Out-of-Band" [ref=e117] [cursor=pointer]:
+          - /url: "#/Out-of-Band Messaging"
+          - generic [ref=e119]: Out-of-Band
+    - link " Service Plans" [ref=e120] [cursor=pointer]:
+      - /url: "#/Service Plans"
+      - generic [ref=e121]:
+        - generic [ref=e122]: 
+        - generic [ref=e123]: Service Plans
+    - generic [ref=e124] [cursor=pointer]:
+      - generic [ref=e125]: 
+      - generic [ref=e126]: Billing
+      - generic [ref=e128]: 
+    - list:
+      - listitem [ref=e129]:
+        - link "Invoices" [ref=e130] [cursor=pointer]:
+          - /url: "#/Invoices"
+          - generic [ref=e132]: Invoices
+      - listitem [ref=e133]:
+        - link "Payment Settings" [ref=e134] [cursor=pointer]:
+          - /url: "#/Payment Settings"
+          - generic [ref=e136]: Payment Settings
+    - generic [ref=e137] [cursor=pointer]:
+      - generic [ref=e138]: 
+      - generic [ref=e139]: Help
+    - generic [ref=e140] [cursor=pointer]:
+      - generic [ref=e141]: 
+      - generic [ref=e142]: Logout
+    - img "NetSfere Logo" [ref=e143]
+  - generic [ref=e145]:
+    - generic [ref=e146]: Invited Users
+    - list [ref=e147]:
+      - link " Home " [ref=e149] [cursor=pointer]:
+        - /url: "#/Dashboard"
+        - listitem [ref=e150]:
+          - generic [ref=e151]: 
+          - text: Home
+          - generic [ref=e152]: 
+      - listitem [ref=e154]:
+        - text: Users & Groups
+        - generic [ref=e155]: 
+      - link "Invited Users" [ref=e157] [cursor=pointer]:
+        - /url: "#/Invited Users"
+        - listitem [ref=e158]: Invited Users
+    - generic [ref=e159]:
+      - generic [ref=e161]:
+        - generic [ref=e162]:
+          - generic [ref=e163]:
+            - generic [ref=e164]:
+              - generic [ref=e165]: 
+              - generic [ref=e166]: Invite User
+            - generic [ref=e167]: Invite a user to your organization.
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - generic [ref=e170]: Name
+              - textbox "First Last" [ref=e172]: atgu102
+            - generic [ref=e174]:
+              - generic [ref=e175]: Email
+              - textbox "user@example.com" [ref=e177]: atgu102@murali.netsferetest.org
+            - generic [ref=e179]:
+              - generic [ref=e180]: Role
+              - combobox "Role" [ref=e182]:
+                - option "User" [selected]
+                - option "Administrator"
+                - option "Administrator (Read Only)"
+            - generic [ref=e184]:
+              - generic [ref=e185]: Authentication Type
+              - combobox "AddUserModal.authType" [ref=e187]:
+                - option "Use Organization Default" [selected]
+                - option "Standard NetSfere Authentication"
+                - option "SSO"
+            - generic [ref=e189]:
+              - generic [ref=e190]: CC Emails (Optional)
+              - textbox "user1@example.com, user2@example.com" [ref=e192]
+            - generic [ref=e194]:
+              - generic [ref=e195]: Groups
+              - table [ref=e203]:
+                - rowgroup [ref=e204]:
+                  - row "Group name Role" [ref=e205]:
+                    - columnheader "Group name" [ref=e206]:
+                      - generic [ref=e208]: Group name
+                    - columnheader "Role" [ref=e209]:
+                      - generic [ref=e211]: Role
+                - rowgroup [ref=e212]:
+                  - row "No groups currently set" [ref=e213]:
+                    - cell "No groups currently set" [ref=e214]:
+                      - generic [ref=e215]: No groups currently set
+            - button "Set groups" [ref=e216] [cursor=pointer]: Set groups
+          - generic [ref=e217]:
+            - button "Cancel" [ref=e218] [cursor=pointer]: Cancel
+            - button "Invite" [ref=e219] [cursor=pointer]: Invite
+        - button "close" [ref=e220] [cursor=pointer]:
+          - generic [ref=e221]: close
+      - generic [ref=e222]:
+        - button "Add User" [ref=e223] [cursor=pointer]: Add User
+        - button "Import Users" [ref=e224] [cursor=pointer]: Import Users
+        - button "Export Users" [ref=e225] [cursor=pointer]: Export Users
+        - generic [ref=e226]:
+          - generic [ref=e228] [cursor=pointer]:
+            - img [ref=e229]
+            - text: Import User Template
+          - generic [ref=e232] [cursor=pointer]:
+            - img [ref=e233]
+            - text: Template Instructions
+      - generic [ref=e235]:
+        - generic [ref=e236]:
+          - generic [ref=e238]:
+            - text: Show invited users that match
+            - combobox [ref=e241]:
+              - option "ANY"
+              - option "ALL" [selected]
+            - text: "of the following criteria:"
+          - generic [ref=e243] [cursor=pointer]: Reset Search
+        - generic [ref=e244]:
+          - combobox [ref=e247]:
+            - option "User ID"
+            - option "Display Name" [selected]
+            - option "Send by email"
+            - option "Auto-Provisioning"
+          - combobox [ref=e251]:
+            - option "contains" [selected]
+            - option "does not contain"
+            - option "is"
+            - option "is not"
+          - textbox "Jane Doe" [ref=e255]
+          - generic [ref=e257]:
+            - generic [ref=e258] [cursor=pointer]: +
+            - generic [ref=e259] [cursor=pointer]: "-"
+      - generic [ref=e260]:
+        - generic [ref=e261]:
+          - generic [ref=e262]: 
+          - text: Reinvite
+        - generic [ref=e263]:
+          - generic [ref=e264]: 
+          - text: Cancel Invitation
+        - generic [ref=e265]:
+          - generic [ref=e266]: 
+          - text: View User Details
+        - generic [ref=e267]:
+          - generic [ref=e268]: 
+          - text: Modify User
+        - generic [ref=e269]:
+          - generic [ref=e270]: 
+          - text: Export Selected Users
+      - table [ref=e273]:
+        - rowgroup [ref=e274]:
+          - row " User ID  Display Name  Send by email  Activation Link Last Invite Time Auto-Provisioning " [ref=e275]:
+            - columnheader "" [ref=e276]:
+              - generic [ref=e277]: 
+            - columnheader "User ID " [ref=e278]:
+              - generic [ref=e279] [cursor=pointer]:
+                - generic [ref=e280]: User ID
+                - generic [ref=e281]: 
+            - columnheader "Display Name " [ref=e282]:
+              - generic [ref=e283] [cursor=pointer]:
+                - generic [ref=e284]: Display Name
+                - generic [ref=e285]: 
+            - columnheader "Send by email " [ref=e286]:
+              - generic [ref=e287] [cursor=pointer]:
+                - generic [ref=e288]: Send by email
+                - generic [ref=e289]: 
+            - columnheader "Activation Link" [ref=e290]:
+              - generic [ref=e292]: Activation Link
+            - columnheader "Last Invite Time" [ref=e293]:
+              - generic [ref=e295]: Last Invite Time
+            - columnheader "Auto-Provisioning " [ref=e296]:
+              - generic [ref=e297] [cursor=pointer]:
+                - generic [ref=e298]: Auto-Provisioning
+                - generic [ref=e299]: 
+        - rowgroup [ref=e300]:
+          - row " 216 atgu100 atgu100@murali.netsferetest.org Send by email Feb 12, 2026 9:55 AM No" [ref=e301] [cursor=pointer]:
+            - cell "" [ref=e302]:
+              - generic [ref=e303]: 
+            - cell "216" [ref=e304]
+            - cell "atgu100" [ref=e305]
+            - cell "atgu100@murali.netsferetest.org" [ref=e306]
+            - cell "Send by email" [ref=e307]:
+              - link "Send by email" [ref=e308]:
+                - /url: mailto:atgu100@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu100%40murali.netsferetest.org%26activationCode%3D566222%23activate
+            - cell "Feb 12, 2026 9:55 AM" [ref=e309]
+            - cell "No" [ref=e310]
+          - row " 217 atgu101 atgu101@murali.netsferetest.org Send by email Feb 12, 2026 9:55 AM No" [ref=e311] [cursor=pointer]:
+            - cell "" [ref=e312]:
+              - generic [ref=e313]: 
+            - cell "217" [ref=e314]
+            - cell "atgu101" [ref=e315]
+            - cell "atgu101@murali.netsferetest.org" [ref=e316]
+            - cell "Send by email" [ref=e317]:
+              - link "Send by email" [ref=e318]:
+                - /url: mailto:atgu101@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu101%40murali.netsferetest.org%26activationCode%3D587333%23activate
+            - cell "Feb 12, 2026 9:55 AM" [ref=e319]
+            - cell "No" [ref=e320]
+          - row " 218 atgu102 atgu102@murali.netsferetest.org Send by email Feb 12, 2026 10:01 AM No" [ref=e321] [cursor=pointer]:
+            - cell "" [ref=e322]:
+              - generic [ref=e323]: 
+            - cell "218" [ref=e324]
+            - cell "atgu102" [ref=e325]
+            - cell "atgu102@murali.netsferetest.org" [ref=e326]
+            - cell "Send by email" [ref=e327]:
+              - link "Send by email" [ref=e328]:
+                - /url: mailto:atgu102@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu102%40murali.netsferetest.org%26activationCode%3D634602%23activate
+            - cell "Feb 12, 2026 10:01 AM" [ref=e329]
+            - cell "No" [ref=e330]
+          - row " 219 atgu103 atgu103@murali.netsferetest.org Send by email Feb 12, 2026 10:01 AM No" [ref=e331] [cursor=pointer]:
+            - cell "" [ref=e332]:
+              - generic [ref=e333]: 
+            - cell "219" [ref=e334]
+            - cell "atgu103" [ref=e335]
+            - cell "atgu103@murali.netsferetest.org" [ref=e336]
+            - cell "Send by email" [ref=e337]:
+              - link "Send by email" [ref=e338]:
+                - /url: mailto:atgu103@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu103%40murali.netsferetest.org%26activationCode%3D414389%23activate
+            - cell "Feb 12, 2026 10:01 AM" [ref=e339]
+            - cell "No" [ref=e340]
+          - row " 220 atgu104 atgu104@murali.netsferetest.org Send by email Feb 12, 2026 10:01 AM No" [ref=e341] [cursor=pointer]:
+            - cell "" [ref=e342]:
+              - generic [ref=e343]: 
+            - cell "220" [ref=e344]
+            - cell "atgu104" [ref=e345]
+            - cell "atgu104@murali.netsferetest.org" [ref=e346]
+            - cell "Send by email" [ref=e347]:
+              - link "Send by email" [ref=e348]:
+                - /url: mailto:atgu104@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu104%40murali.netsferetest.org%26activationCode%3D789523%23activate
+            - cell "Feb 12, 2026 10:01 AM" [ref=e349]
+            - cell "No" [ref=e350]
+          - row " 205 atgu90 atgu90@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e351] [cursor=pointer]:
+            - cell "" [ref=e352]:
+              - generic [ref=e353]: 
+            - cell "205" [ref=e354]
+            - cell "atgu90" [ref=e355]
+            - cell "atgu90@murali.netsferetest.org" [ref=e356]
+            - cell "Send by email" [ref=e357]:
+              - link "Send by email" [ref=e358]:
+                - /url: mailto:atgu90@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu90%40murali.netsferetest.org%26activationCode%3D664354%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e359]
+            - cell "No" [ref=e360]
+          - row " 206 atgu91 atgu91@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e361] [cursor=pointer]:
+            - cell "" [ref=e362]:
+              - generic [ref=e363]: 
+            - cell "206" [ref=e364]
+            - cell "atgu91" [ref=e365]
+            - cell "atgu91@murali.netsferetest.org" [ref=e366]
+            - cell "Send by email" [ref=e367]:
+              - link "Send by email" [ref=e368]:
+                - /url: mailto:atgu91@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu91%40murali.netsferetest.org%26activationCode%3D829508%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e369]
+            - cell "No" [ref=e370]
+          - row " 207 atgu92 atgu92@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e371] [cursor=pointer]:
+            - cell "" [ref=e372]:
+              - generic [ref=e373]: 
+            - cell "207" [ref=e374]
+            - cell "atgu92" [ref=e375]
+            - cell "atgu92@murali.netsferetest.org" [ref=e376]
+            - cell "Send by email" [ref=e377]:
+              - link "Send by email" [ref=e378]:
+                - /url: mailto:atgu92@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu92%40murali.netsferetest.org%26activationCode%3D985125%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e379]
+            - cell "No" [ref=e380]
+          - row " 208 atgu93 atgu93@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e381] [cursor=pointer]:
+            - cell "" [ref=e382]:
+              - generic [ref=e383]: 
+            - cell "208" [ref=e384]
+            - cell "atgu93" [ref=e385]
+            - cell "atgu93@murali.netsferetest.org" [ref=e386]
+            - cell "Send by email" [ref=e387]:
+              - link "Send by email" [ref=e388]:
+                - /url: mailto:atgu93@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu93%40murali.netsferetest.org%26activationCode%3D448364%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e389]
+            - cell "No" [ref=e390]
+          - row " 209 atgu94 atgu94@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e391] [cursor=pointer]:
+            - cell "" [ref=e392]:
+              - generic [ref=e393]: 
+            - cell "209" [ref=e394]
+            - cell "atgu94" [ref=e395]
+            - cell "atgu94@murali.netsferetest.org" [ref=e396]
+            - cell "Send by email" [ref=e397]:
+              - link "Send by email" [ref=e398]:
+                - /url: mailto:atgu94@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu94%40murali.netsferetest.org%26activationCode%3D155472%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e399]
+            - cell "No" [ref=e400]
+          - row " 210 atgu95 atgu95@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e401] [cursor=pointer]:
+            - cell "" [ref=e402]:
+              - generic [ref=e403]: 
+            - cell "210" [ref=e404]
+            - cell "atgu95" [ref=e405]
+            - cell "atgu95@murali.netsferetest.org" [ref=e406]
+            - cell "Send by email" [ref=e407]:
+              - link "Send by email" [ref=e408]:
+                - /url: mailto:atgu95@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu95%40murali.netsferetest.org%26activationCode%3D258420%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e409]
+            - cell "No" [ref=e410]
+          - row " 211 atgu96 atgu96@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e411] [cursor=pointer]:
+            - cell "" [ref=e412]:
+              - generic [ref=e413]: 
+            - cell "211" [ref=e414]
+            - cell "atgu96" [ref=e415]
+            - cell "atgu96@murali.netsferetest.org" [ref=e416]
+            - cell "Send by email" [ref=e417]:
+              - link "Send by email" [ref=e418]:
+                - /url: mailto:atgu96@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu96%40murali.netsferetest.org%26activationCode%3D545146%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e419]
+            - cell "No" [ref=e420]
+          - row " 212 atgu97 atgu97@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e421] [cursor=pointer]:
+            - cell "" [ref=e422]:
+              - generic [ref=e423]: 
+            - cell "212" [ref=e424]
+            - cell "atgu97" [ref=e425]
+            - cell "atgu97@murali.netsferetest.org" [ref=e426]
+            - cell "Send by email" [ref=e427]:
+              - link "Send by email" [ref=e428]:
+                - /url: mailto:atgu97@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu97%40murali.netsferetest.org%26activationCode%3D568031%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e429]
+            - cell "No" [ref=e430]
+          - row " 213 atgu98 atgu98@murali.netsferetest.org Send by email Feb 11, 2026 4:15 PM No" [ref=e431] [cursor=pointer]:
+            - cell "" [ref=e432]:
+              - generic [ref=e433]: 
+            - cell "213" [ref=e434]
+            - cell "atgu98" [ref=e435]
+            - cell "atgu98@murali.netsferetest.org" [ref=e436]
+            - cell "Send by email" [ref=e437]:
+              - link "Send by email" [ref=e438]:
+                - /url: mailto:atgu98@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu98%40murali.netsferetest.org%26activationCode%3D748448%23activate
+            - cell "Feb 11, 2026 4:15 PM" [ref=e439]
+            - cell "No" [ref=e440]
+          - row " 215 atgu99 atgu99@murali.netsferetest.org Send by email Feb 12, 2026 9:55 AM No" [ref=e441] [cursor=pointer]:
+            - cell "" [ref=e442]:
+              - generic [ref=e443]: 
+            - cell "215" [ref=e444]
+            - cell "atgu99" [ref=e445]
+            - cell "atgu99@murali.netsferetest.org" [ref=e446]
+            - cell "Send by email" [ref=e447]:
+              - link "Send by email" [ref=e448]:
+                - /url: mailto:atgu99@murali.netsferetest.org?subject=Activate your NetSfere Account&body=https%3A%2F%2Fweb.netsferetest.com%2F%3Femail%3Datgu99%40murali.netsferetest.org%26activationCode%3D625062%23activate
+            - cell "Feb 12, 2026 9:55 AM" [ref=e449]
+            - cell "No" [ref=e450]
+      - generic [ref=e451]:
+        - generic [ref=e452]: Showing 1 to 15 of 15 total records.
+        - generic [ref=e453]: No records selected.
+        - generic [ref=e454]:
+          - generic [ref=e455]: "Records per page:"
+          - combobox [ref=e458]:
+            - option "5"
+            - option "10"
+            - option "25" [selected]
+            - option "50"
+            - option "100"
+            - option "500"
+            - option "1000"
+            - option "All"
+        - generic [ref=e460]:
+          - button "First" [disabled]
+          - button "Previous" [disabled]
+          - button "Next" [disabled]
+          - button "Last" [disabled]
+```

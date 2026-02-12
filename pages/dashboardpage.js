@@ -1,27 +1,27 @@
-import { test, expect } from '@playwright/test';
-import commonMethod from "../utils/common.js";
-import { dashboardpage } from '../locators/dashboard.locators.js';
-import { Locator } from '@playwright/test';
 
-const dashboardpagelocators = new dashboardpage();
-const commonMethod = new commonMethod();
+import DashboardPageLocator from '../locators/dashboard.locators.js';
+import commonMethod from '../utils/common.js';
+import { expect } from '@playwright/test';
 
-export default class dashboardpage {
-    constructor(page) {
-        this.page = page;
-    }
+
+export default class DashboardPage {
+  constructor(page) {
+    this.page = page;
+    this.dashboardpagelocators = new DashboardPageLocator(page);
+    this.common = new commonMethod(page);
+  }
     async enterUserDetails(username, email) {
-       for (let i = 21; i < 23; i++) {
-        await commonMethod.fill(dashboardpagelocators.FirtName, username + i);
-        await commonMethod.fill(dashboardpagelocators.Email, username + i + email);
-        await commonMethod.click(dashboardpagelocators.InviteButton);
+       for (let i = 108; i < 110; i++) {
+        await this.common.fill(this.dashboardpagelocators.FirtName, username + i);
+        await this.common.fill(this.dashboardpagelocators.Email, username + i + email);
+        await this.common.click(this.dashboardpagelocators.InviteButton);
         await this.verifyInviteAnotherUserLabel();
-        await commonMethod.click(dashboardpagelocators.InviteAnotherUserButton);
+        await this.common.click(this.dashboardpagelocators.InviteAnotherUserButton);
     };
     }
 
     async verifyInviteAnotherUserLabel() {
-        await expect(dashboardpagelocators.InviteAnotherUserLabel).toBeVisible();
+        await expect(this.dashboardpagelocators.InviteAnotherUserLabel).toBeVisible();
 
     }
     async verifyDashboardScreen(){

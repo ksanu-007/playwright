@@ -6,7 +6,7 @@ import CommonMethod from '../utils/common.js';
 
 test('verify add user functionality', async ({ page }) => {
 
-  const commonMethod = new CommonMethod(page);
+  const common = new CommonMethod(page);
   const loginPage = new LoginPage(page);
   const dashboardPage = new DashboardPage(page);
   const dashboardPageLocator = new DashboardPageLocator(page);
@@ -16,12 +16,13 @@ test('verify add user functionality', async ({ page }) => {
   //await expect(page).toHaveURL('https://admin.netsferetest.com/#/dashboard');
   await dashboardPage.verifyDashboardScreen();
 
-  await commonMethod.click(dashboardPageLocator.userGroups);
-  await commonMethod.click(dashboardPageLocator.invitedUser);
-  await commonMethod.click(dashboardPageLocator.addUserButton);
+  await common.click(dashboardPageLocator.UserAndGroups);
+  await common.click(dashboardPageLocator.InviteUser);
+  await common.click(dashboardPageLocator.AddUserButton);
 
   await dashboardPage.enterUserDetails('atgu', '@murali.netsferetest.org');
 
-  await commonMethod.click(dashboardPageLocator.DoneButton);
-  await commonMethod.click(dashboardPageLocator.LogoutButton);
+  //await common.click(dashboardPageLocator.DoneButton);
+
+  //await common.click(dashboardPageLocator.LogoutButton);
 });

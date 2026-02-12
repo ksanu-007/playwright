@@ -1,0 +1,15 @@
+Locator to be clicked:  locator('div').filter({ hasText: /^Users & Groups$/ }).first()
+Locator to be clicked:  getByRole('link', { name: 'Invited Users' })
+Locator to be clicked:  getByRole('button', { name: 'Add User' })
+Locator to be filled:  getByPlaceholder('First Last')  with value:  atgu105
+Locator to be filled:  getByPlaceholder('user@example.com')  with value:  atgu105@murali.netsferetest.org
+Locator to be clicked:  getByRole('button', { name: 'Invite' })
+Locator to be clicked:  getByRole('button', { name: 'Invite another user' })
+Locator to be filled:  getByPlaceholder('First Last')  with value:  atgu106
+Locator to be filled:  getByPlaceholder('user@example.com')  with value:  atgu106@murali.netsferetest.org
+Locator to be clicked:  getByRole('button', { name: 'Invite' })
+Locator to be clicked:  getByRole('button', { name: 'Invite another user' })
+Locator to be filled:  getByPlaceholder('First Last')  with value:  atgu107
+Locator to be filled:  getByPlaceholder('user@example.com')  with value:  atgu107@murali.netsferetest.org
+Locator to be clicked:  getByRole('button', { name: 'Invite' })
+Locator to be clicked:  getByRole('button', { name: 'Invite another user' })

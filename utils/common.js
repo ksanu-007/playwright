@@ -1,7 +1,7 @@
-import { Page, expect } from '@playwright/test';
-import { test } from '@playwright/test';
-import { Locator } from '@playwright/test';
-import dashboardPage from "../pages/dashboardpage.js";
+// import { Page, expect } from '@playwright/test';
+// import { test } from '@playwright/test';
+// import { Locator } from '@playwright/test';
+// import dashboardPage from "../pages/dashboardpage.js";
 
 export default class commonMethod {
     constructor(page) {
@@ -10,12 +10,13 @@ export default class commonMethod {
 
     //click operation
     async click(locator) {
-        await this.page.click(locator);
+       console.log("Locator to be clicked: ", locator);
+        await locator.click();
     }
     //fill operation
     async fill(locator, value) {
-        await this.page.fill(locator, value);
+        console.log("Locator to be filled: ", locator, " with value: ", value);
+        await locator.fill(value);
     }
 }
 
-module.exports = commonMethod;
