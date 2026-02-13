@@ -12,6 +12,6 @@ export default class DashboardPageLocator {
     this.InviteAnotherUserLabel = page.getByText('Invite another user');
     this.InviteAnotherUserButton = page.getByRole('button', { name: 'Invite another user' });
     this.DoneButton = page.getByRole('button', { name: 'Done' });
-    this.LogoutButton = page.getByRole('button', { name: 'Logout' });
+    this.LogoutButton = page.locator('text=Logout');
   }
 }

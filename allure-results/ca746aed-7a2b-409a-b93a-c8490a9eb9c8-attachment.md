@@ -1,0 +1,70 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - img "NetSfere - The Best Enterprise Messaging Solution" [ref=e6]
+    - generic [ref=e7]: Login to Administrator Account
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]: Email
+        - generic [ref=e11]:
+          - img [ref=e12]
+          - textbox "Enter Email Address" [active] [ref=e15]
+        - generic [ref=e16]: Please enter an email
+      - button "Continue" [disabled] [ref=e18]: Continue
+    - generic [ref=e20]:
+      - generic [ref=e21] [cursor=pointer]:
+        - img "Android" [ref=e22]
+        - generic [ref=e32]: Android
+      - generic [ref=e33] [cursor=pointer]:
+        - img "iOS" [ref=e34]
+        - generic [ref=e40]: iOS
+      - generic [ref=e41] [cursor=pointer]:
+        - img "Apple Watch" [ref=e42]
+        - generic [ref=e52]: Apple Watch
+      - generic [ref=e53] [cursor=pointer]:
+        - img "Mac" [ref=e54]
+        - generic [ref=e66]: Mac
+      - generic [ref=e67] [cursor=pointer]:
+        - img "Windows" [ref=e68]
+        - generic [ref=e75]: Windows
+    - generic [ref=e76]:
+      - link "Home" [ref=e77] [cursor=pointer]:
+        - /url: https://www.netsfere.com
+      - link "About" [ref=e78] [cursor=pointer]:
+        - /url: https://www.netsfere.com/About-Us/About-Our-Internal-Enterprise-Messaging-Service
+      - link "Help" [ref=e79] [cursor=pointer]:
+        - /url: https://help.netsfere.com
+      - link "Support" [ref=e80] [cursor=pointer]:
+        - /url: https://netsfere.com/support
+    - generic [ref=e81]:
+      - text: By proceeding, you agree to NetSfere's
+      - link "Terms of Service and Privacy Policy" [ref=e82] [cursor=pointer]:
+        - /url: legal.html
+  - generic [ref=e84]:
+    - generic [ref=e85]:
+      - generic [ref=e86]: Enabling Communication.
+      - generic [ref=e87]: Message, Voice, Video in One Secure, Compliant, Private Enterprise-Grade Platform
+    - generic [ref=e88]:
+      - generic [ref=e89]:
+        - img "SECURITY" [ref=e90]
+        - generic [ref=e91]:
+          - generic [ref=e92]: SECURITY
+          - generic [ref=e93]: Protect Your Data and Intellectual Property
+      - generic [ref=e94]:
+        - img "CONTROL" [ref=e95]
+        - generic [ref=e96]:
+          - generic [ref=e97]: CONTROL
+          - generic [ref=e98]: Keep I.T. in the Driver's Seat
+      - generic [ref=e99]:
+        - img "COMPLIANCE" [ref=e100]
+        - generic [ref=e101]:
+          - generic [ref=e102]: COMPLIANCE
+          - generic [ref=e103]: Stay Compliant and Safeguard Your Business
+      - generic [ref=e104]:
+        - img "COLLABORATION" [ref=e105]
+        - generic [ref=e106]:
+          - generic [ref=e107]: COLLABORATION
+          - generic [ref=e108]: Drive Productivity Gains
+```

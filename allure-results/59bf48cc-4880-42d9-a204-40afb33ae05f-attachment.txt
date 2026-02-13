@@ -1,0 +1,2 @@
+Inside Login BeforeEach
+Locator to be clicked:  locator('div').filter({ hasText: /^Users & Groups$/ }).first()

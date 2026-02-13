@@ -1,0 +1,7 @@
+Initiate browser and Login userID and Password
+Locator to be clicked:  locator('div').filter({ hasText: /^Users & Groups$/ }).first()
+Locator to be clicked:  getByRole('link', { name: 'Invited Users' })
+Locator to be clicked:  getByRole('button', { name: 'Add User' })
+Locator to be filled:  getByPlaceholder('First Last')  with value:  atgu108
+Locator to be filled:  getByPlaceholder('user@example.com')  with value:  atgu108@murali.netsferetest.org
+Locator to be clicked:  getByRole('button', { name: 'Invite' })

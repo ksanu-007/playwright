@@ -1,0 +1,14 @@
+{
+    "appUrl": {
+    
+     "testUrl" : "https://admin.netsferetest.com/#/login",
+     "productionUrl" : "https://admin.netsfere.com/#/login"
+
+  },
+  "logincreds": {
+
+    "name": "atgu",
+    "email" : "@murali.netsferetest.org",
+    "password": "Abcd@1234567"
+  }
+}

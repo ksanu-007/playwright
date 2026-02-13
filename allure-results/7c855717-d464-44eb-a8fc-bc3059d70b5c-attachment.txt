@@ -1,0 +1,3 @@
+Initiate browser and Login userID and Password
+app logout
+Locator to be clicked:  getByRole('button', { name: 'Logout' })

@@ -1,0 +1,236 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4] [cursor=pointer]:
+      - img "User Avatar" [ref=e5]
+      - generic [ref=e6]:
+        - generic [ref=e7]: atg
+        - generic [ref=e8]: atg
+    - link " Dashboard" [ref=e10] [cursor=pointer]:
+      - /url: "#/Dashboard"
+      - generic [ref=e11]:
+        - generic [ref=e12]: 
+        - generic [ref=e13]: Dashboard
+    - link " Analytics" [ref=e14] [cursor=pointer]:
+      - /url: "#/Analytics"
+      - generic [ref=e15]:
+        - generic [ref=e16]: 
+        - generic [ref=e17]: Analytics
+    - generic [ref=e18] [cursor=pointer]:
+      - generic [ref=e19]: 
+      - generic [ref=e20]: Users & Groups
+      - generic [ref=e22]: 
+    - list:
+      - listitem [ref=e23]:
+        - link "Active Users" [ref=e24] [cursor=pointer]:
+          - /url: "#/Active Users"
+          - generic [ref=e26]: Active Users
+      - listitem [ref=e27]:
+        - link "Groups" [ref=e28] [cursor=pointer]:
+          - /url: "#/Teams"
+          - generic [ref=e30]: Groups
+      - listitem [ref=e31]:
+        - link "Devices" [ref=e32] [cursor=pointer]:
+          - /url: "#/Devices"
+          - generic [ref=e34]: Devices
+      - listitem [ref=e35]:
+        - link "Invited Users" [ref=e36] [cursor=pointer]:
+          - /url: "#/Invited Users"
+          - generic [ref=e38]: Invited Users
+      - listitem [ref=e39]:
+        - link "Disabled Users" [ref=e40] [cursor=pointer]:
+          - /url: "#/Disable Users"
+          - generic [ref=e42]: Disabled Users
+    - link " Broadcast" [ref=e43] [cursor=pointer]:
+      - /url: "#/Broadcast"
+      - generic [ref=e44]:
+        - generic [ref=e45]: 
+        - generic [ref=e46]: Broadcast
+    - generic [ref=e47] [cursor=pointer]:
+      - generic [ref=e48]: 
+      - generic [ref=e49]: Logs
+      - generic [ref=e51]: 
+    - list:
+      - listitem [ref=e52]:
+        - link "Device Wipe Log" [ref=e53] [cursor=pointer]:
+          - /url: "#/Device Wipe Log"
+          - generic [ref=e55]: Device Wipe Log
+      - listitem [ref=e56]:
+        - link "Admin Actions Log" [ref=e57] [cursor=pointer]:
+          - /url: "#/Admin Actions Log"
+          - generic [ref=e59]: Admin Actions Log
+      - listitem [ref=e60]:
+        - link "User History Log" [ref=e61] [cursor=pointer]:
+          - /url: "#/User History Log"
+          - generic [ref=e63]: User History Log
+    - generic [ref=e64] [cursor=pointer]:
+      - img [ref=e65]
+      - generic [ref=e66]: Net-C AI
+      - generic [ref=e68]: 
+    - list:
+      - listitem [ref=e69]:
+        - link "Add Documents" [ref=e70] [cursor=pointer]:
+          - /url: "#/Add Documents"
+          - generic [ref=e72]: Add Documents
+      - listitem [ref=e73]:
+        - link "View Documents" [ref=e74] [cursor=pointer]:
+          - /url: "#/View Documents"
+          - generic [ref=e76]: View Documents
+    - generic [ref=e78] [cursor=pointer]:
+      - generic [ref=e79]: 
+      - generic [ref=e80]: Settings
+      - generic [ref=e82]: 
+    - list:
+      - listitem [ref=e83]:
+        - link "Organization" [ref=e84] [cursor=pointer]:
+          - /url: "#/Organization"
+          - generic [ref=e86]: Organization
+      - listitem [ref=e87]:
+        - link "Messaging" [ref=e88] [cursor=pointer]:
+          - /url: "#/Messaging"
+          - generic [ref=e90]: Messaging
+      - listitem [ref=e91]:
+        - link "Security Policy" [ref=e92] [cursor=pointer]:
+          - /url: "#/Security Policy"
+          - generic [ref=e94]: Security Policy
+      - listitem [ref=e95]:
+        - link "Contact Attributes" [ref=e96] [cursor=pointer]:
+          - /url: "#/Contact Attributes"
+          - generic [ref=e98]: Contact Attributes
+      - listitem [ref=e99]:
+        - link "Active Directory" [ref=e100] [cursor=pointer]:
+          - /url: "#/Active Directory"
+          - generic [ref=e102]: Active Directory
+      - listitem [ref=e103]:
+        - link "Archiving" [ref=e104] [cursor=pointer]:
+          - /url: "#/Archiving"
+          - generic [ref=e106]: Archiving
+      - listitem [ref=e107]:
+        - link "Domain Names" [ref=e108] [cursor=pointer]:
+          - /url: "#/Domain Names"
+          - generic [ref=e110]: Domain Names
+      - listitem [ref=e111]:
+        - link "Identity Providers" [ref=e112] [cursor=pointer]:
+          - /url: "#/Identity Providers"
+          - generic [ref=e114]: Identity Providers
+      - listitem [ref=e115]:
+        - link "Out-of-Band" [ref=e116] [cursor=pointer]:
+          - /url: "#/Out-of-Band Messaging"
+          - generic [ref=e118]: Out-of-Band
+    - link " Service Plans" [ref=e119] [cursor=pointer]:
+      - /url: "#/Service Plans"
+      - generic [ref=e120]:
+        - generic [ref=e121]: 
+        - generic [ref=e122]: Service Plans
+    - generic [ref=e123] [cursor=pointer]:
+      - generic [ref=e124]: 
+      - generic [ref=e125]: Billing
+      - generic [ref=e127]: 
+    - list:
+      - listitem [ref=e128]:
+        - link "Invoices" [ref=e129] [cursor=pointer]:
+          - /url: "#/Invoices"
+          - generic [ref=e131]: Invoices
+      - listitem [ref=e132]:
+        - link "Payment Settings" [ref=e133] [cursor=pointer]:
+          - /url: "#/Payment Settings"
+          - generic [ref=e135]: Payment Settings
+    - generic [ref=e136] [cursor=pointer]:
+      - generic [ref=e137]: 
+      - generic [ref=e138]: Help
+    - generic [ref=e139] [cursor=pointer]:
+      - generic [ref=e140]: 
+      - generic [ref=e141]: Logout
+    - img "NetSfere Logo" [ref=e142]
+  - generic [ref=e144]:
+    - generic [ref=e145]:
+      - generic [ref=e146]: Admin Control Panel
+      - strong [ref=e148]: You are an admin of this organization.
+      - generic [ref=e149]: As a NetSfere administrator you have complete centralized administrative control to manage all aspects of communication for your organization and users from this Admin Control Panel.
+      - generic [ref=e150]: Use the quick action cards on the right or the navigation menu on the left to get started.
+      - generic [ref=e152]: NetSfere is here to help. If you require assistance or wish to provide feedback please use the button below to get in touch.
+      - link "Contact Us" [ref=e153] [cursor=pointer]:
+        - /url: https://netsfere.com/support
+        - button "Contact Us" [ref=e154]: Contact Us
+    - generic [ref=e155]:
+      - generic [ref=e156]:
+        - generic [ref=e158] [cursor=pointer]:
+          - generic [ref=e160]: 
+          - generic [ref=e161]: USERS
+          - generic [ref=e162]: Invite Users
+          - generic [ref=e163]: Add Users to your organization
+        - generic [ref=e165] [cursor=pointer]:
+          - generic [ref=e167]: 
+          - generic [ref=e168]: BROADCASTS
+          - generic [ref=e169]: Add Broadcast Channel
+          - generic [ref=e170]: Add a channel to broadcast messages to a group or your entire organization
+        - link " ANALYTICS View Analytics View NetSfere usage metrics" [ref=e172] [cursor=pointer]:
+          - /url: "#/Analytics"
+          - generic [ref=e173]:
+            - generic [ref=e175]: 
+            - generic [ref=e176]: ANALYTICS
+            - generic [ref=e177]: View Analytics
+            - generic [ref=e178]: View NetSfere usage metrics
+      - generic [ref=e179]:
+        - generic [ref=e182] [cursor=pointer]:
+          - generic [ref=e184]: 
+          - generic [ref=e185]: SETTINGS
+          - generic [ref=e186]: HD Voice is Enabled
+          - generic [ref=e187]: Disable this feature to prevent users from communicating via secure HD Voice calling
+        - generic [ref=e190] [cursor=pointer]:
+          - generic [ref=e192]: 
+          - generic [ref=e193]: SETTINGS
+          - generic [ref=e194]: HD Video is Enabled
+          - generic [ref=e195]: Disable this feature to prevent users from communicating via secure HD Video calling
+        - generic [ref=e198] [cursor=pointer]:
+          - generic [ref=e200]: 
+          - generic [ref=e201]: SETTINGS
+          - generic [ref=e202]: SecureMeet is Enabled
+          - generic [ref=e203]: Disable this feature to prevent users from collaborating via SecureMeet
+      - generic [ref=e204]:
+        - generic [ref=e206] [cursor=pointer]:
+          - generic [ref=e208]: 
+          - generic [ref=e209]: MESSAGING
+          - generic [ref=e210]: Attachment Policy
+          - generic [ref=e211]: Set attachment permissions for user's of your organization
+        - link " SETTINGS Link Email Domain Configure NetSfere to accept sign-ups from your corporate email domains" [ref=e213] [cursor=pointer]:
+          - /url: "#/Domain Names"
+          - generic [ref=e214]:
+            - generic [ref=e216]: 
+            - generic [ref=e217]: SETTINGS
+            - generic [ref=e218]: Link Email Domain
+            - generic [ref=e219]: Configure NetSfere to accept sign-ups from your corporate email domains
+        - link " SETTINGS Security Policy Change the security policy for your organization" [ref=e221] [cursor=pointer]:
+          - /url: "#/Security Policy"
+          - generic [ref=e222]:
+            - generic [ref=e224]: 
+            - generic [ref=e225]: SETTINGS
+            - generic [ref=e226]: Security Policy
+            - generic [ref=e227]: Change the security policy for your organization
+      - generic [ref=e228]:
+        - generic [ref=e231]:
+          - img "QuantumLogo" [ref=e233]
+          - generic [ref=e234] [cursor=pointer]:
+            - img "QuantumLogo" [ref=e236]
+            - generic [ref=e237]: INFORMATION
+            - generic [ref=e238]: Quantum-Proof
+            - generic [ref=e239]: Quantum-proof End-to-End Encryption for your data
+        - link "SETTINGS MFA Set MFA state for user's of your organization" [ref=e241] [cursor=pointer]:
+          - /url: "#/Security Policy"
+          - generic [ref=e242]:
+            - img [ref=e244]
+            - generic [ref=e248]: SETTINGS
+            - generic [ref=e249]: MFA
+            - generic [ref=e250]: Set MFA state for user's of your organization
+        - link "QuantumLogo EMERGENCY BROADCASTS Out-of-Band Send OOB emergency messages to ensure business continuity when primary systems are offline or degraded." [ref=e252] [cursor=pointer]:
+          - /url: "#/Out-of-Band Messaging"
+          - generic [ref=e253]:
+            - img "QuantumLogo" [ref=e255]
+            - generic [ref=e256]:
+              - img [ref=e258]
+              - generic [ref=e259]: EMERGENCY BROADCASTS
+              - generic [ref=e260]: Out-of-Band
+              - generic [ref=e261]: Send OOB emergency messages to ensure business continuity when primary systems are offline or degraded.
+```
