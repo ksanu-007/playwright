@@ -3,7 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+<<<<<<< HEAD
   "scripts": {},
+=======
+  "scripts": {
+    "test": "playwright test",
+    "test:conversation": "playwright test conversation.spec.js",
+    "test:conversation:retry": "playwright test conversation.spec.js --retries=3",
+    "test:conversation:debug": "playwright test conversation.spec.js --debug",
+    "allure:report": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report",
+    "test:conversation:withreport": "playwright test conversation.spec.js --retries=2 && npm run allure:report"
+  },
+>>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -11,6 +23,13 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.0.9",
+<<<<<<< HEAD
     "allure-playwright": "^3.4.5"
+=======
+    "allure": "^3.3.1",
+    "allure-playwright": "^3.4.5",
+    "test": "playwright test"
+  
+>>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)
   }
 }

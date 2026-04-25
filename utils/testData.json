@@ -2,6 +2,7 @@
     "appUrl": {
     
      "testUrl" : "https://admin.netsferetest.com/#/login",
+<<<<<<< HEAD
      "productionUrl" : "https://admin.netsfere.com/#/login"
 
   },
@@ -11,4 +12,39 @@
     "email" : "@murali.netsferetest.org",
     "password": "Abcd@1234567"
   }
+=======
+     "productionUrl" : "https://admin.netsfere.com/#/login",
+     "webUrl" : "https://web.netsferetest.com/#/login",
+     "convUrl" : "https://web.netsferetest.com/#/conversations/68"
+ 
+  },
+  "logincreds": {
+
+    "name": "playou",
+    "email" : "@murali.netsferetest.org",
+    "password": "Abcd@1234567",
+    "user1" : "playou1",
+    "user2" : "playou130",
+    "user3" : "playou132",
+    "message" : "This is new conversation",
+    "pollquestion" : "Which is best automation tool?",
+    "option1" : "Playwright",   
+    "option2" : "Cypress",
+
+    "conversationURl": "https://web.netsferetest.com/#/conversations/",
+    "dashboardUrl": "https://admin.netsferetest.com/#/Invited%20Users"
+  },
+  "groupDetails": {
+
+    "groupName": "NetsGroup1",
+    "shortgroupName": "Nets"
+
+  },
+  "BroadcastChannelDetails": {
+
+    "broadcastName": "munnichannel",
+    "broadcastchannelDescription": "munnni badnam huyi"
+   
+}
+>>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)
 }

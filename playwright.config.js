@@ -13,6 +13,14 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
+<<<<<<< HEAD
+=======
+  timeout: 240000,
+
+  expect: {
+    timeout: 15000,
+  },
+>>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -21,7 +29,11 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
+<<<<<<< HEAD
   workers: process.env.CI ? 1 : undefined,
+=======
+  workers: process.env.CI ? 1 : 4,
+>>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   //reporter: 'html',
   reporter: [["html"], ["allure-playwright"]],
@@ -30,12 +42,30 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     // baseURL: 'http://localhost:3000',
+<<<<<<< HEAD
 headless: false,
       screenshot: 'on', // Automatically capture screenshots on failure
       trace: 'retain-on-failure', // Capture traces on failure
       video: 'on'
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
   
+=======
+ 
+  permissions: ['clipboard-read', 'clipboard-write' , 'geolocation', 'microphone'],
+headless: false,
+      screenshot: 'on', // Automatically capture screenshots on failure
+      trace: 'retain-on-failure', // Capture traces on failure
+      video: 'on',
+      viewport: null, // Use the default viewport size of the browser
+     
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+
+   // geolocation: { latitude: 28.6139, longitude: 77.2090 }, // Example: Delhi
+   // locale: 'en-IN',
+  
+
+
+>>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)
   },
 
   /* Configure projects for major browsers */
