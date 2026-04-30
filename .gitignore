@@ -1,52 +1,8 @@
 
 # Playwright
-<<<<<<< HEAD
 node_modules/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
-=======
-allure-results/
-allure-report/
-playwright-report/
-test-results/
-node_modules/
-*.mp4
-*.zip
-*.png
-*.webm
-
-# Build & Reports
-/dist/
-/build/
-/coverage/
-*.log
-*.lcov
-
-# OS files
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*~
-
-# IDE files
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
-*.iml
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Generated files
-.cache/
-*.tmp
-temp/
-node_modules
->>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)

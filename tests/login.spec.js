@@ -15,7 +15,6 @@ test.beforeEach(async ({ page }) => {
   
 });
 
-<<<<<<< HEAD
 test.afterEach(async ({ page }) => {
   console.log('app logout');
   const common = new CommonMethod(page);
@@ -23,38 +22,17 @@ test.afterEach(async ({ page }) => {
   await common.click(dashboardPageLocator.LogoutButton);
 });
 
-test('verify add user functionality', async ({ page}) => {
-  const dashboardPage = new DashboardPage(page);
-  const dashboardPageLocator = new DashboardPageLocator(page);
-=======
-// test.afterEach(async ({ page }) => {
-//   console.log('app logout');
-//   const common = new CommonMethod(page);
-//   const dashboardPageLocator = new DashboardPageLocator(page)
-//   await common.click(dashboardPageLocator.LogoutButton);
-// });
-
 test('verify add & activate user functionality', async ({ page}) => {
   const dashboardPage = new DashboardPage(page);
   const dashboardPageLocator = new DashboardPageLocator(page);
   const common = new CommonMethod(page);
->>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)
   await dashboardPage.verifyDashboardScreen();
   await common.click(dashboardPageLocator.UserAndGroups);
   await common.click(dashboardPageLocator.InviteUser);
   await common.click(dashboardPageLocator.AddUserButton);
   await dashboardPage.enterUserDetails(testData.logincreds.name, testData.logincreds.email);
-<<<<<<< HEAD
-
-});
-=======
 });
 
 
 
 
-
-
-
-
->>>>>>> efb2ebc (git ignore commit message/MCP Implemented code)
