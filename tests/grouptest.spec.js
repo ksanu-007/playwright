@@ -36,6 +36,7 @@ test('Verify Create Group functionality', async ({ page}) => {
   await common.click(groupsPageLocator.SelectOwnersCheckBox);
   await common.click(groupsPageLocator.SaveButton);
   await common.click(groupsPageLocator.AddButton);
+  await page.waitForTimeout(20000);
   await common.verifyElementVisible(groupsPageLocator.SuccessMessage);
   await common.click(groupsPageLocator.closeButton);
 });
