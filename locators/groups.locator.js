@@ -14,6 +14,11 @@ export default class GroupsPageLocator {
     this.AddButton = page.getByRole('button', { name: 'Add' });
     this.SuccessMessage = page.getByText('Successfully added group.');
     this.closeButton = page.getByRole('button', { name: 'Close' });
+    this.searchgroupname = page.locator("//input[@type='text']");
+    this.selectgroupname = page.locator("//tr/th[1]/i");
+    this.deletegroupbutton = page.locator("//i[@class='fa fa-trash pr-2 px-2']");
+    this.proceedbutton = page.locator("//span[text()='Proceed']");
+    this.groupclosebutton = page.locator("//span[text()='Close']"); 
 
   }
 }
