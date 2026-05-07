@@ -1,4 +1,3 @@
-
 import { test, expect } from '@playwright/test';
 import LoginPage from '../pages/loginpage.js';
 import DashboardPage from '../pages/dashboardpage.js';
@@ -38,6 +37,7 @@ test('Verify Create Group functionality', async ({ page}) => {
   await common.click(groupsPageLocator.AddButton);
   await page.waitForTimeout(20000);
   await common.verifyElementVisible(groupsPageLocator.SuccessMessage);
+  console.log('Group added successfully - verification complete');
   await common.click(groupsPageLocator.closeButton);
   await page.waitForTimeout(10000);
   await common.click(groupsPageLocator.searchgroupname);
@@ -47,4 +47,5 @@ test('Verify Create Group functionality', async ({ page}) => {
   await common.click(groupsPageLocator.proceedbutton);
   await page.waitForTimeout(10000);
   await common.click(groupsPageLocator.groupclosebutton);
+  console.log('Group created and deleted successfully');
 });
