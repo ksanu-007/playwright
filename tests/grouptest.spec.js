@@ -47,4 +47,5 @@ test('Verify Create Group functionality', async ({ page}) => {
   await common.click(groupsPageLocator.proceedbutton);
   await page.waitForTimeout(10000);
   await common.click(groupsPageLocator.groupclosebutton);
+  console.log(`Group created successfully and deleted successfully`);
 });
