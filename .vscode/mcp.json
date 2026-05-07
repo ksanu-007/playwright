@@ -6,24 +6,9 @@
 				"@playwright/mcp@latest"
 			],
 			"type": "stdio"
-		},
-		"jenkins-playwright": {
-			"command": "node",
-			"args": [
-				"C:\\JENKINS\\Jenkins-server-mcp\\build\\index.js"
-			],
-			"type": "stdio",
-			"env": {
-				"JENKINS_URL": "http://localhost:8080",
-				"JENKINS_USER": "ksanu-007",
-				"JENKINS_TOKEN": "11d4d71d533f8fe837af3488b47500fe7f",
-				"JENKINS_TIMEOUT": "30000"
-			}
-		},
-		"github": {
-			"type": "http",
-			"url": "https://api.githubcopilot.com/mcp/"
 		}
 	},
 	"inputs": []
 }
+
+
