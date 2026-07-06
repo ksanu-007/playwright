@@ -1,0 +1,35 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-verify
+---
+# =============================================================================
+# Android verifies a message in a specific conversation
+# Requires: CONVERSATION_NAME, EXPECTED_TEXT
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: ${CONVERSATION_NAME}
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+- assertVisible:
+    text: ${EXPECTED_TEXT}
+    id: "com.infinite.netsfere:id/message_content_textview"
+- back

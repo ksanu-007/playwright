@@ -1,0 +1,38 @@
+appId: com.infinite.netsfere
+tags:
+  - android-create-conversation
+---
+# =============================================================================
+# Android creates a 1:1 conversation with TARGET_USER
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 15000
+- tapOn:
+    id: "com.infinite.netsfere:id/new_conversation_fab"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/search_view"
+    timeout: 15000
+- tapOn:
+    id: "android:id/search_src_text"
+- inputText: ${TARGET_USER}
+- extendedWaitUntil:
+    visible:
+      text: ${TARGET_USER}
+    timeout: 15000
+- tapOn:
+    text: ${TARGET_USER}
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/send_message_edittext"
+    timeout: 15000

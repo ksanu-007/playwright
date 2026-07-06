@@ -1,0 +1,70 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-initiate-video-call
+---
+# =============================================================================
+# Android initiates a VIDEO call.
+# Tapping "Video Call" in the menu directly opens the video call screen.
+# We wait for call_hangup (end-call button) to confirm call screen is active.
+# Requires: CONVERSATION_NAME, PASSWORD
+# =============================================================================
+- launchApp:
+    clearState: false
+# End any lingering call from a previous test
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/call_hangup"
+    commands:
+      - tapOn:
+          id: "com.infinite.netsfere:id/call_hangup"
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: ${CONVERSATION_NAME}
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+- tapOn:
+    id: "com.infinite.netsfere:id/menu_call_item"
+- extendedWaitUntil:
+    visible:
+      text: "Video Call"
+    timeout: 10000
+- tapOn:
+    text: "Video Call"
+# Tap call_fab to initiate the video call
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/call_fab"
+    timeout: 10000
+- tapOn:
+    id: "com.infinite.netsfere:id/call_fab"
+# Optionally tap "RING ALL" if visible (rings all participants)
+- runFlow:
+    when:
+      visible:
+        text: "RING ALL"
+      timeout: 10000
+    commands:
+      - tapOn:
+          text: "RING ALL"
+# Wait for call connection (hangup button appears)
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/call_hangup"
+    timeout: 60000

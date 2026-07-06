@@ -1,0 +1,52 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - web-to-mobile
+---
+# =============================================================================
+# Web-to-Mobile: Verifies incoming message and sends a reply
+# Assumes: app already logged in (ensure-logged-in runs first)
+# Finds "autos" conversation by regex, verifies "Hi" message, replies "Hello"
+# =============================================================================
+# If inside a chat, navigate back to list first
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+# Wait for conversation list
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+# Wait for autos conversation to appear with incoming message
+- extendedWaitUntil:
+    visible:
+      text: ".*autos.*"
+      id: "com.infinite.netsfere:id/conversation_name_text"
+    timeout: 180000
+# Tap autos conversation
+- tapOn:
+    text: ".*autos.*"
+    id: "com.infinite.netsfere:id/conversation_name_text"
+# Wait for chat to load
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+# Verify message from Web
+- assertVisible:
+    text: ".*Hi.*"
+    id: "com.infinite.netsfere:id/message_content_textview"
+# Send reply
+- tapOn:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+- inputText: "Hello"
+- hideKeyboard
+- tapOn:
+    id: "com.infinite.netsfere:id/send_button"
+# Confirm reply sent
+- assertVisible:
+    text: ".*Hello.*"
+    id: "com.infinite.netsfere:id/message_content_textview"
+# Navigate back to list
+- back

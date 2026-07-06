@@ -1,0 +1,47 @@
+{
+    "appUrl": {
+      "webUrl" : "https://web.netsferetest.com/#/login",
+      "testUrl" : "https://admin.netsferetest.com/#/login",
+      "productionUrl" : "https://admin.netsfere.com/#/login"
+    },
+    "logincreds": {
+      "name": "frido",
+      "email" : "@sanu.netsferetest.org",
+      "password": "Abcd@1234567"
+    },
+    "userRange": {
+      "baseUserId": "frido",
+      "emailDomain": "@sanu.netsferetest.org",
+      "startIndex": 400,
+      "endIndex": 450
+    },
+    "conversationTestData": {
+      "user1": "playou1",
+      "user2": "playou2",
+      "user3": "playou3",
+      "message": "Hi",
+      "pollquestion": "Test Poll?",
+      "option1": "Option A",
+      "option2": "Option B"
+    },
+    "BroadcastChannelDetails": {
+      "broadcastName": "TestBroadcast",
+      "broadcastchannelDescription": "Test broadcast description"
+    },
+    "groupDetails": {
+      "groupName": "sanu",
+      "shortgroupName": "sanu1"
+    },
+    "groups": [
+      { "name": "Group_A_150", "shortName": "GA150", "memberCount": 150 },
+      { "name": "Group_B_200", "shortName": "GB200", "memberCount": 200 },
+      { "name": "Group_C_149", "shortName": "GC149", "memberCount": 149 },
+      { "name": "Group_D_Admin", "shortName": "GDAdmin", "memberCount": 1 }
+    ],
+    "groupMemberRanges": [
+      { "groupName": "Group_A_150", "startUser": 80, "endUser": 229 },
+      { "groupName": "Group_B_200", "startUser": 230, "endUser": 429 },
+      { "groupName": "Group_C_149", "startUser": 430, "endUser": 578 },
+      { "groupName": "Group_D_Admin", "startUser": 0, "endUser": 0, "includeAdmin": true }
+    ]
+  }

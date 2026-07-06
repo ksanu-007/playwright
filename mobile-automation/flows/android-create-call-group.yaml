@@ -1,0 +1,70 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-create-call-group
+---
+# =============================================================================
+# Android creates a group conversation for calling tests.
+# GROUP_NAME is a unique name used both as the group title and for navigation.
+# Adds Web1 (autos/via CONVERSATION_NAME) + TARGET_USER1 (+ optional TARGET_USER2).
+# Requires: GROUP_NAME, CONVERSATION_NAME, TARGET_USER1, PASSWORD
+# Optional: TARGET_USER2
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- tapOn:
+    id: "com.infinite.netsfere:id/new_conversation_fab"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/search_view"
+    timeout: 15000
+- tapOn:
+    id: "com.infinite.netsfere:id/conversation_title_edit_text"
+- inputText: ${GROUP_NAME}
+- tapOn:
+    id: "android:id/search_src_text"
+- inputText: ${CONVERSATION_NAME}
+- extendedWaitUntil:
+    visible:
+      text: ${CONVERSATION_NAME}
+    timeout: 10000
+- tapOn:
+    id: "com.infinite.netsfere:id/select_checkBox"
+- tapOn:
+    id: "android:id/search_src_text"
+- inputText: ${TARGET_USER1}
+- extendedWaitUntil:
+    visible:
+      text: ${TARGET_USER1}
+    timeout: 10000
+- tapOn:
+    id: "com.infinite.netsfere:id/select_checkBox"
+- runFlow:
+    when:
+      visible: ${TARGET_USER2}
+    commands:
+      - tapOn:
+          id: "android:id/search_src_text"
+      - inputText: ${TARGET_USER2}
+      - extendedWaitUntil:
+          visible:
+            text: ${TARGET_USER2}
+          timeout: 10000
+      - tapOn:
+          id: "com.infinite.netsfere:id/select_checkBox"
+- tapOn:
+    id: "com.infinite.netsfere:id/action_create"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/send_message_edittext"
+    timeout: 15000

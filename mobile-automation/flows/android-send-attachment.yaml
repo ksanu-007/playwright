@@ -1,0 +1,63 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-send-attachment
+---
+# =============================================================================
+# Android sends a document attachment in a conversation
+# Requires: CONVERSATION_NAME
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: ${CONVERSATION_NAME}
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+# Handle any permission dialogs before interacting
+- runFlow:
+    when:
+      visible: "While using the app"
+    commands:
+      - tapOn: "While using the app"
+- runFlow:
+    when:
+      visible: "Allow"
+    commands:
+      - tapOn: "Allow"
+- runFlow:
+    when:
+      visible: "Allow all the time"
+    commands:
+      - tapOn: "Allow all the time"
+- tapOn:
+    id: "com.infinite.netsfere:id/insert_attachment_button"
+- extendedWaitUntil:
+    visible:
+      text: "Document"
+    timeout: 15000
+- tapOn:
+    text: "Document"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/action_done"
+    timeout: 30000
+- tapOn:
+    id: "com.infinite.netsfere:id/action_done"
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"

@@ -1,0 +1,34 @@
+appId: com.infinite.netsfere
+tags:
+  - android-screen-share
+---
+- launchApp:
+    clearState: false
+# =============================================================================
+# Android starts screen sharing during an active call
+# Assumes: in an active audio call (action_end_call visible)
+# =============================================================================
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/action_end_call"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/action_screen_share"
+    timeout: 15000
+- tapOn:
+    id: "com.infinite.netsfere:id/action_screen_share"
+- runFlow:
+    when:
+      visible: "START NOW"
+    commands:
+      - tapOn: "START NOW"
+- runFlow:
+    when:
+      visible: "Share screen"
+    commands:
+      - tapOn: "Share screen"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/action_stop_screen_share"
+    timeout: 30000

@@ -1,0 +1,208 @@
+putty:--
+demo4:-- 10.40.251.26[Lan]
+         10.40.251.41
+id:sanu
+pass: sanu123
+
+bash
+cd netsfere/environments/test/
+ls
+fs-cli status -e test-ms3-web
+[Now you can see your core-server and the keys]
+cd ../..
+cd keys/
+ssh -i us-east-keypair.pem ubuntu@52.90.179.68
+ssh -i us-east-keypair.pem ubuntu@54.234.221.177
+
+test-ms3-web
+ssh -i us-east-keypair.pem ubuntu@52.90.179.68
+
+test-anchor-web
+ssh -i us-east-keypair.pem ubuntu@34.234.65.66
+
+test-manager-web
+ssh -i us-east-keypair.pem ubuntu@3.239.114.167
+
+test-v2-vault
+ssh -i us-east-keypair.pem ubuntu@18.207.108.233
+
+test-desktop-web
+ssh -i us-east-keypair.pem ubuntu@18.210.27.173
+
+sudo bash
+app
+
+[to see the niginx error:---]
+tail -f /var/log/nginx/error.log
+
+[to see the flagship log]:-----
+vi /var/log/flagship-plain.log
+
+
+df -h
+[to see the disk space of the ms3]
+
+upgrade anchor web :---
+
+fs-cli status -e test-ms3-web netsfere-core:6.3.2.57548
+
+fs-cli push -e test-client-web netsfere-webapp:6.4.0.93446
+
+
+fs-cli push -e test-client-web netsfere-webapp:6.3.1.78925
+
+fs-cli push -e test-desktop-web netsfere-webapp:6.2.1.68913
+
+fs-cli push -e test-v2-vault vault:6.3.1.50670
+
+
+To abort process:--
+ fs-cli abort -e test-desktop-web  
+
+Enable securemeet from db:---
+get into keys folder then write the ssh complete keys
+app[now you are in docker]
+start mysql client with command  'mysql' 
+modify the entry with the following mysql query.
+
+> UPDATE common.tblOrganizations SET allowSecureMeet = 1 WHERE organizationId=15315;
+update tblOrganizations SET allowEmergencyNotification=1 WHERE organizationId=15315;
+
+>
+mysql> insert into tblOrgFeatures (orgId,featureTag) values(15315,"SecureMeet");
+
+mysql> insert into tblOrgFeatures (orgId,featureTag) values(15608,"ADFS");
+
+mysql> insert into tblOrgFeatures (orgId,featureTag) values(15650,"allowOnmichannelBroadcast");
+
+PQC flag enable query:-
+INSERT INTO organization16182.tblFeatures (featureTag) VALUES('PQCOnly');
+
+NetCTicketAccess sql query:--
+
+Get into ms3/ms8
+Use common DB;
+Use organization15546;
+
+For Notifications need to Login this org to check:--
+https://web.netsferedev.com
+bill.band@terry.netsferedev.org/11111111
+
+INSERT INTO organization16234.tblFeatures (featureTag) VALUES('NetcTicketAccess');
+insert into tblOrgFeatures (orgId,featureTag) values(15817,'NetcTicketAccess');
+
+Netc-AI summary flag enabled:-
+INSERT INTO organization16323.tblFeatures (featureTag) VALUES('SummaryAI');
+
+insert into tblOrgFeatures (orgId,featureTag) values(15613,'SummaryAI');
+
+Email Footer content Steps:--
+STEPS:(email content for newaccountemail and guestinviteemail)
+  cd netsfere/dev-tools/remex
+ ./dssh ms8
+ cd tools
+vim ../emails/contents/en/NewAccountEmail.html
+change ur own content then :wq! for save it
+update command: ./updateEmailTemplate 15316 en NewAccountEmail.html ../emails/contents/en/NewAccountEmail.html
+
+ANchor activation for features:--
+mysql> use anchor;
+mysql> insert into tblOrgFeatures (orgId,featureTag) values(15817,'PQCOnly');
+exit
+root@test-anchor-web 172.31.1.122 docker:/var/app/current# ./tools/syncFeatures.php
+
+[If you dont have permission to get into the keys]
+Follow this:--
+ ls -lrt us-east-keypair.pem
+ chmod 400 us-east-keypair.pem
+
+
+ 
+[:wq to comeout from vi editor]
+
+Check all the messages in organizations:--
+	get into Mysql first
+	use organization13940
+	select count(*) from tblMessages where msgType = 5;
+
+Enable Network API in organizations:--
+
+Get in mysql first
+use organization13148
+update tblUsers set networkApiEnabled=1 ;
+
+Netsfere-channel Integration:--
+
+1. Enable Omnichannel from manager
+2. omnichannel url:-- https://emsebc01.icmsg.in  "Enabled"
+3. Generate new keypair
+4. Login to Anchor DB
+5. Mysql> insert into tblOrgFeatures (orgId,featureTag) values(16198,"allowOnmichannelBroadcast");
+6. Exit
+7. ./tools/syncFeatures.php
+
+
+LIVE-SERVER COMMANDS:---
+
+
+ssh mpug@10.50.251.185 
+Password : mpug123
+
+after login to ext3 machine 
+
+ssh live5-test
+
+this will login to live server
+
+sudo bash
+
+cat /opt/app/release
+
+this will give you the live server package version 
+*** System restart required ***
+Last login: Tue Jan  2 08:19:24 2024 from 12.26.97.185
+ubuntu@ip-192-168-201-205:~$ sudo bash
+root@ip-192-168-201-205:/home/ubuntu# cat /opt/app/release
+commit a0008516f112f53c04fdb446ff5a72ef27237d43 (HEAD, tag: push, tag: 6.4.0, origin/electron_25_deep_link)
+Author: Terry Cumaranatunge <terry.cumaranatunge@infinite.com>
+Date:   Wed Dec 20 07:13:23 2023 -0600
+
+    change turnserver install to download from a mirror site. https://trello.com/c/CvUMHyoV/1609-turnserver-site-is-down
+
+
+#1 . login to vault CLI
+#2. Find the file which is consuming more space
+du -a / | sort -n -r | head -n 10
+#3 . Identify the vault DB  corresponding to the file. 
+#4. look at the VaultID <-> orgID mapping in Vault DB.
+#5. drop the vault db which is not in use
+
+
+ncatutil command:--
+cd /tools
+./ncatutil
+
+
+Retry learnig for NEt-C AI Document issue:---
+1. first get into ext3 machine then ssh live 5
+2. root@ip-192-168-201-217:/home/ubuntu# cat /var/tmp/servers_config.json 
+3. root@ip-192-168-201-217:/home/ubuntu# mysql -h lr1da526ej1ai42.c3wqr3tner1c.us-west-2.rds.amazonaws.com -u infinite --password=3231NWilkeRd
+4. mysql> use live;
+Database changed
+5. mysql> select * from ORG_UPDATES where ORG_ID=15317;
++--------+----------+---------------------+--------------------+----------------------+--------+-------------+
+| ORG_ID | ORG_NAME | LAST_UPDATED        | KEY_ID             | MSG_SERVER           | STATUS | RETRY_COUNT |
++--------+----------+---------------------+--------------------+----------------------+--------+-------------+
+| 15317  | biotin   | 2025-07-08 08:09:20 | alias/key-id-15317 | ms8.netsferetest.com | NULL   |           4 |
++--------+----------+---------------------+--------------------+----------------------+--------+-------------+
+1 row in set (0.00 sec)
+
+
+6. mysql> update ORG_UPDATES set RETRY_COUNT=0 where org_id=15317;
+
+7.Increase AI document Size by MB in professional client:----
+
+Get into ms3/ms8
+use common;
+ select organizationId, netcDocUploadLimitMB from tblOrganizations where organizationId = 15897;
+ update tblOrganizations set netcDocUploadLimitMB=100 where organizationId = 15897;

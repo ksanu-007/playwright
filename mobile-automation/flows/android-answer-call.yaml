@@ -1,0 +1,36 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-answer-call
+---
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+# =============================================================================
+# Android answers an incoming call and stays on call for CALL_DURATION_TEXT
+# Requires: CALL_DURATION_TEXT
+# Assumes: app is logged in and running (call will come via push notification)
+# =============================================================================
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/action_answer"
+    timeout: 120000
+- tapOn:
+    id: "com.infinite.netsfere:id/action_answer"
+- extendedWaitUntil:
+    notVisible:
+      id: "com.infinite.netsfere:id/action_answer"
+    timeout: 30000
+- tapOn:
+    id: "com.infinite.netsfere:id/action_mute"
+- extendedWaitUntil:
+    visible:
+      text: ${CALL_DURATION_TEXT}
+    timeout: 60000
+- tapOn:
+    id: "com.infinite.netsfere:id/action_end_call"

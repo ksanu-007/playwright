@@ -1,0 +1,91 @@
+appId: com.infinite.netsfere
+tags:
+  - shared
+  - session
+---
+# =============================================================================
+# Ensure Android user is logged in (idempotent)
+# Does NOT clearState — keeps existing session if valid.
+# =============================================================================
+- launchApp:
+    clearState: false
+# If the email field is visible, we need to login
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/email_text"
+    commands:
+      - tapOn:
+          id: "com.infinite.netsfere:id/email_text"
+      - eraseText: 100
+      - inputText: ${EMAIL}
+      - tapOn: "CONTINUE"
+      - extendedWaitUntil:
+          visible:
+            id: "com.infinite.netsfere:id/password_text"
+          timeout: 15000
+      - tapOn:
+          id: "com.infinite.netsfere:id/password_text"
+      - inputText: ${PASSWORD}
+      - hideKeyboard
+      - tapOn: "LOGIN"
+# If "Login" button is visible, tap it first then login
+- runFlow:
+    when:
+      visible: "Login"
+    commands:
+      - tapOn: "Login"
+      - extendedWaitUntil:
+          visible:
+            id: "com.infinite.netsfere:id/email_text"
+          timeout: 15000
+      - tapOn:
+          id: "com.infinite.netsfere:id/email_text"
+      - eraseText: 100
+      - inputText: ${EMAIL}
+      - tapOn: "CONTINUE"
+      - extendedWaitUntil:
+          visible:
+            id: "com.infinite.netsfere:id/password_text"
+          timeout: 15000
+      - tapOn:
+          id: "com.infinite.netsfere:id/password_text"
+      - inputText: ${PASSWORD}
+      - hideKeyboard
+      - tapOn: "LOGIN"
+# Dismiss post-login dialogs
+- runFlow:
+    when:
+      visible:
+        text: "Close"
+    commands:
+      - tapOn:
+          text: "Close"
+- runFlow:
+    when:
+      visible: "NO, THANKS"
+    commands:
+      - tapOn: "NO, THANKS"
+- runFlow:
+    when:
+      visible: "DON'T SHOW AGAIN"
+    commands:
+      - tapOn: "DON'T SHOW AGAIN"
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/tip_skip_button"
+    commands:
+      - tapOn:
+          id: "com.infinite.netsfere:id/tip_skip_button"
+# If inside a chat, go back to conversation list
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000

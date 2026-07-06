@@ -1,0 +1,65 @@
+appId: com.infinite.netsfere
+tags:
+  - android-create-poll
+---
+# =============================================================================
+# Android creates a quick poll in a conversation
+# Requires: CONVERSATION_NAME, POLL_QUESTION, OPTION1, OPTION2
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: ${CONVERSATION_NAME}
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+# Handle any permission dialogs before interacting
+- runFlow:
+    when:
+      visible: "While using the app"
+    commands:
+      - tapOn: "While using the app"
+- runFlow:
+    when:
+      visible: "Allow"
+    commands:
+      - tapOn: "Allow"
+- tapOn:
+    id: "com.infinite.netsfere:id/insert_attachment_button"
+- extendedWaitUntil:
+    visible: "Quick Poll"
+    timeout: 15000
+- tapOn: "Quick Poll"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/poll_question_edittext"
+    timeout: 15000
+- tapOn:
+    id: "com.infinite.netsfere:id/poll_question_edittext"
+- inputText: ${POLL_QUESTION}
+- tapOn:
+    id: "com.infinite.netsfere:id/option_one_edittext"
+- inputText: ${OPTION1}
+- tapOn:
+    id: "com.infinite.netsfere:id/option_two_edittext"
+- inputText: ${OPTION2}
+- tapOn: "Send"
+- extendedWaitUntil:
+    visible:
+      text: ".*${POLL_QUESTION}.*"
+    timeout: 15000

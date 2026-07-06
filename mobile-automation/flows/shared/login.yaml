@@ -1,0 +1,20 @@
+appId: com.infinite.netsfere
+---
+# =============================================================================
+# Shared Login Flow – Netsfere Android
+# Reusable across multiple test flows via ${EMAIL} and ${PASSWORD} params.
+# =============================================================================
+- runFlow:
+    when:
+      visible: "Login"
+    commands:
+      - tapOn: "Login"
+      - tapOn:
+          id: "com.infinite.netsfere:id/email_text"
+      - inputText: ${EMAIL}
+      - tapOn: "CONTINUE"
+      - tapOn:
+          id: "com.infinite.netsfere:id/password_text"
+      - inputText: ${PASSWORD}
+      - hideKeyboard
+      - tapOn: "LOGIN"

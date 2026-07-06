@@ -1,0 +1,101 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-call-and-share
+---
+# =============================================================================
+# Android initiates an audio call AND shares screen within the same flow.
+# Avoids concurrent Maestro session conflicts. Ends call from Android side.
+# Requires: CONVERSATION_NAME, CALL_TYPE, CALL_DURATION_TEXT, PASSWORD
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: ${CONVERSATION_NAME}
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+- tapOn:
+    id: "com.infinite.netsfere:id/menu_call_item"
+- extendedWaitUntil:
+    visible:
+      text: ${CALL_TYPE}
+    timeout: 10000
+- tapOn:
+    text: ${CALL_TYPE}
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/call_fab"
+    timeout: 10000
+- tapOn:
+    id: "com.infinite.netsfere:id/call_fab"
+- extendedWaitUntil:
+    visible:
+      text: "RING ALL"
+    timeout: 10000
+- tapOn:
+    text: "RING ALL"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/call_hangup"
+    timeout: 60000
+# Call is active — wait a bit, then share screen
+# First try direct visibility, then try horizontal scroll
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/action_screen_share"
+      timeout: 3000
+    commands:
+      - tapOn:
+          id: "com.infinite.netsfere:id/action_screen_share"
+- runFlow:
+    when:
+      notVisible:
+        id: "com.infinite.netsfere:id/action_stop_screen_share"
+    commands:
+      # Scroll left to reveal screen share button in call controls
+      - scrollUntilVisible:
+          element:
+            id: "com.infinite.netsfere:id/action_screen_share"
+          direction: LEFT
+          timeout: 10000
+          speed: 40
+      - tapOn:
+          id: "com.infinite.netsfere:id/action_screen_share"
+- runFlow:
+    when:
+      visible: "START NOW"
+    commands:
+      - tapOn: "START NOW"
+- runFlow:
+    when:
+      visible: "Share screen"
+    commands:
+      - tapOn: "Share screen"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/action_stop_screen_share"
+    timeout: 30000
+# Wait for call duration, then end call
+- extendedWaitUntil:
+    visible:
+      text: ${CALL_DURATION_TEXT}
+    timeout: 60000
+- tapOn:
+    id: "com.infinite.netsfere:id/call_hangup"

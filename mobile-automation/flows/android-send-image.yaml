@@ -1,0 +1,29 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-send-image
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+# =============================================================================
+# Android sends an image from gallery
+# Assumes: inside the conversation (send_message_edittext visible)
+# =============================================================================
+- tapOn:
+    id: "com.infinite.netsfere:id/insert_attachment_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/attach_gallery_image_view"
+    timeout: 10000
+- tapOn:
+    id: "com.infinite.netsfere:id/attach_gallery_image_view"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/action_done"
+    timeout: 30000
+- tapOn:
+    id: "com.infinite.netsfere:id/action_done"
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"

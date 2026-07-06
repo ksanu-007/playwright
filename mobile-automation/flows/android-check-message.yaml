@@ -1,0 +1,67 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-check-message
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Login"
+    commands:
+      - tapOn: "Login"
+      - tapOn:
+          id: "com.infinite.netsfere:id/email_text"
+      - inputText: ${ANDROID_USER}
+      - tapOn: "CONTINUE"
+      - tapOn:
+          id: "com.infinite.netsfere:id/password_text"
+      - inputText: ${PASSWORD}
+      - hideKeyboard
+      - tapOn: "LOGIN"
+- runFlow:
+    when:
+      visible:
+        text: "Close"
+    commands:
+      - tapOn:
+          text: "Close"
+- runFlow:
+    when:
+      visible: "NO, THANKS"
+    commands:
+      - tapOn: "NO, THANKS"
+- runFlow:
+    when:
+      visible: "DON'T SHOW AGAIN"
+    commands:
+      - tapOn: "DON'T SHOW AGAIN"
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/tip_skip_button"
+    commands:
+      - tapOn:
+          id: "com.infinite.netsfere:id/tip_skip_button"
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      text: ${CONVERSATION_NAME}
+    timeout: 120000
+- tapOn:
+    text: ${CONVERSATION_NAME}
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+- assertVisible:
+    text: ${EXPECTED_TEXT}
+    id: "com.infinite.netsfere:id/message_content_textview"
+- back

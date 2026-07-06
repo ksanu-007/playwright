@@ -1,0 +1,67 @@
+appId: com.infinite.netsfere
+tags:
+  - android-create-group
+---
+# =============================================================================
+# Android creates a group conversation
+# Requires: GROUP_NAME, MEMBER1, MEMBER2 (optional)
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 15000
+- tapOn:
+    id: "com.infinite.netsfere:id/new_conversation_fab"
+- extendedWaitUntil:
+    visible: "New Group"
+    timeout: 10000
+- tapOn: "New Group"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/search_view"
+    timeout: 15000
+- tapOn:
+    id: "android:id/search_src_text"
+- inputText: ${MEMBER1}
+- extendedWaitUntil:
+    visible:
+      text: ${MEMBER1}
+    timeout: 15000
+- tapOn:
+    text: ${MEMBER1}
+- runFlow:
+    when:
+      visible:
+        id: "android:id/search_src_text"
+    commands:
+      - tapOn:
+          id: "android:id/search_src_text"
+      - inputText: ${MEMBER2}
+      - runFlow:
+          when:
+            visible:
+              text: ${MEMBER2}
+          commands:
+            - tapOn:
+                text: ${MEMBER2}
+- tapOn: "Next"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/group_name_edittext"
+    timeout: 10000
+- tapOn:
+    id: "com.infinite.netsfere:id/group_name_edittext"
+- inputText: ${GROUP_NAME}
+- tapOn: "Create"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/send_message_edittext"
+    timeout: 15000
