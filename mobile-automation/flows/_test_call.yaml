@@ -1,0 +1,42 @@
+appId: com.infinite.netsfere
+---
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: autos
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: autos
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+- tapOn:
+    id: "com.infinite.netsfere:id/menu_call_item"
+- extendedWaitUntil:
+    visible:
+      text: "Audio Call"
+    timeout: 10000
+- tapOn:
+    text: "Audio Call"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/call_fab"
+    timeout: 10000
+- tapOn:
+    id: "com.infinite.netsfere:id/call_fab"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/call_hangup"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      text: "00:30"
+    timeout: 60000
+- tapOn:
+    id: "com.infinite.netsfere:id/call_hangup"

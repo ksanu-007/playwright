@@ -1,0 +1,6 @@
+appId: com.infinite.netsfere
+---
+- tapOn:
+    id: "com.infinite.netsfere:id/action_more_menu"
+- waitForAnimationToEnd:
+    timeout: 3000

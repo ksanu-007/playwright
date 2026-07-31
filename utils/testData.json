@@ -2,23 +2,28 @@
     "appUrl": {
       "webUrl" : "https://web.netsferetest.com/#/login",
       "testUrl" : "https://admin.netsferetest.com/#/login",
-      "productionUrl" : "https://admin.netsfere.com/#/login"
+      "productionUrl" : "https://admin.netsfere.com/#/login",
+      "vaultUrl" : "https://vault.netsferetest.com/#/login"
     },
     "logincreds": {
-      "name": "frido",
+      "name": "autos",
       "email" : "@sanu.netsferetest.org",
       "password": "Abcd@1234567"
     },
     "userRange": {
-      "baseUserId": "frido",
+      "baseUserId": "kumaru",
       "emailDomain": "@sanu.netsferetest.org",
-      "startIndex": 400,
-      "endIndex": 450
+      "startIndex": 1001,
+      "endIndex": 3000
+    },
+    "vaultLogin": {
+       "username": "saims12@sanu.netsferetest.org",
+      "password": "Abcd@1234567"
     },
     "conversationTestData": {
-      "user1": "playou1",
-      "user2": "playou2",
-      "user3": "playou3",
+      "user1": "16415u31",
+      "user2": "16415u32",
+      "user3": "16415u33",
       "message": "Hi",
       "pollquestion": "Test Poll?",
       "option1": "Option A",
@@ -43,5 +48,25 @@
       { "groupName": "Group_B_200", "startUser": 230, "endUser": 429 },
       { "groupName": "Group_C_149", "startUser": 430, "endUser": 578 },
       { "groupName": "Group_D_Admin", "startUser": 0, "endUser": 0, "includeAdmin": true }
-    ]
+    ],
+    "stripeCardDetails": {
+      "cardHolder": "Test",
+      "cardNumber": "4242424242424242",
+      "expiry": "12/29",
+      "cvv": "234"
+    },
+    "attachmentFiles": {
+      "image": "test-files/sample-image.png",
+      "pdf": "test-files/sample.pdf",
+      "officeDoc": "test-files/sample.docx"
+    },
+    "vaultPassword": "Abcd@1234567",
+
+  "gmail": {
+    "email": "kumar.sanu@netsfere.com",
+    "appPassword": "NetSfere1234"
+  }
+
+
+
   }

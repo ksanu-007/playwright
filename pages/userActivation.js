@@ -80,34 +80,52 @@ export default class UserActivationPage {
 
   async showAllEntries() {
     try {
-      const select = this.page.locator('select').first();
-      if (!(await select.waitFor({ state: 'visible', timeout: 5000 }).catch(() => false))) {
-        console.log('  No dropdown select found');
+      const selects = this.page.locator('select');
+      const selectCount = await selects.count().catch(() => 0);
+      if (selectCount === 0) {
+        console.log('  No dropdown selects found');
         return false;
       }
-      await this.page.waitForTimeout(500);
-      const options = await select.locator('option').all();
-      const optionTexts = await select.locator('option').allTextContents();
-      console.log('  Dropdown options:', optionTexts.map(o => o.trim()));
 
-      const allIdx = optionTexts.findIndex(o => o.trim() === 'All');
+      let targetSelect = null;
+      for (let i = 0; i < selectCount; i++) {
+        const sel = selects.nth(i);
+        const opts = await sel.locator('option').allTextContents().catch(() => []);
+        const cleaned = opts.map(o => o.trim());
+        if (cleaned.includes('All') && cleaned.some(o => !isNaN(parseInt(o, 10)))) {
+          targetSelect = sel;
+          console.log(`  Found show-entries select at index ${i}:`, cleaned);
+          break;
+        }
+      }
+
+      if (!targetSelect) {
+        console.log('  No show-entries select found');
+        return false;
+      }
+
+      const options = await targetSelect.locator('option').all();
+      const optionTexts = await targetSelect.locator('option').allTextContents();
+      const cleanedTexts = optionTexts.map(o => o.trim());
+
+      const allIdx = cleanedTexts.findIndex(o => o === 'All');
       if (allIdx !== -1) {
         const val = await options[allIdx].getAttribute('value');
-        await select.selectOption(val || 'All');
-        await this.page.waitForTimeout(1500);
+        await targetSelect.selectOption(val || 'All');
+        await this.page.waitForTimeout(2000);
         const rowCount = await this.locators.UserRows.count();
         console.log(`  After "All": ${rowCount} rows`);
         return rowCount > 0;
       }
 
-      const numericValues = optionTexts.map(o => parseInt(o.trim(), 10)).filter(n => !isNaN(n));
+      const numericValues = cleanedTexts.map(o => parseInt(o, 10)).filter(n => !isNaN(n));
       if (numericValues.length > 0) {
         const maxVal = Math.max(...numericValues);
-        const maxIdx = optionTexts.findIndex(o => o.trim() === String(maxVal));
+        const maxIdx = cleanedTexts.findIndex(o => o === String(maxVal));
         if (maxIdx !== -1) {
           const val = await options[maxIdx].getAttribute('value');
-          await select.selectOption(val || String(maxVal));
-          await this.page.waitForTimeout(1500);
+          await targetSelect.selectOption(val || String(maxVal));
+          await this.page.waitForTimeout(2000);
           const rowCount = await this.locators.UserRows.count();
           console.log(`  After max(${maxVal}): ${rowCount} rows`);
           return rowCount > 0;
@@ -225,17 +243,19 @@ export default class UserActivationPage {
       const isDisabled = await nextBtn.isDisabled().catch(() => false);
       if (isDisabled) break;
 
-      const rowsBefore = await this.locators.UserRows.count();
-      await nextBtn.click({ force: true, timeout: 5000 }).catch(() => nextBtn.click({ force: true, timeout: 5000 }));
-      await this.page.waitForTimeout(2000);
-      const rowsAfter = await this.locators.UserRows.count();
-      if (rowsAfter >= rowsBefore && rowsAfter > 0) {
-        console.log(`  Page ${pageNum}: same ${rowsAfter} rows after Next click - likely not navigating`);
-        const hasChanged = await this.page.waitForFunction(
-          (old) => document.querySelectorAll('tbody tr').length !== old || document.querySelector('tbody tr td a')?.href !== document.querySelectorAll('tbody tr td a')[0]?.href,
-          rowsBefore, { timeout: 5000 }
-        ).catch(() => false);
-        if (!hasChanged) break;
+      const firstCellText = await this.locators.UserRows.first().locator('td').first().textContent().catch(() => null);
+      await nextBtn.click({ force: true, timeout: 5000 }).catch(() => nextBtn.click({ force: true, timeout: 5000 }).catch(() => nextBtn.evaluate(b => b.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })))));
+      try {
+        await this.page.waitForFunction(
+          (oldText) => {
+            const firstCell = document.querySelector('tbody tr td');
+            return firstCell && firstCell.textContent !== oldText;
+          },
+          firstCellText, { timeout: 8000 }
+        );
+      } catch {
+        console.log(`  Page ${pageNum}: content unchanged after Next click - last page`);
+        break;
       }
       pageNum++;
     }

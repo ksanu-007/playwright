@@ -7,7 +7,7 @@ export default class CommonMethod {
   }
 
   async click(locator, options = {}) {
-    await locator.waitFor({ state: 'visible', timeout: options.timeout || 30000 });
+    await locator.waitFor({ state: 'visible', timeout: options.timeout || 100000 });
     try {
       await locator.click({ ...options, timeout: 5000 });
     } catch {

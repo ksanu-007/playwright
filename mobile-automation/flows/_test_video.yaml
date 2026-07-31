@@ -1,0 +1,37 @@
+appId: com.infinite.netsfere
+---
+# First enter the autos conversation
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: autos
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: autos
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+- tapOn:
+    id: "com.infinite.netsfere:id/menu_call_item"
+- extendedWaitUntil:
+    visible:
+      text: "Video Call"
+    timeout: 10000
+- tapOn:
+    text: "Video Call"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/video_surface_view_layout"
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
