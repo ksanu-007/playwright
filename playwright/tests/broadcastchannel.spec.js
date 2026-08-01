@@ -4,7 +4,6 @@ import DashboardPage from '../pages/dashboardpage.js';
 import DashboardPageLocator from '../locators/dashboard.locators.js';
 import CommonMethod from '../utils/common.js';
 import testData from '../utils/testData.json';
-import { finished } from 'node:stream';
 import GroupsPageLocator from '../locators/groups.locator.js';
 import BroadcastPageLocator from '../locators/broadcast.locator.js';
 

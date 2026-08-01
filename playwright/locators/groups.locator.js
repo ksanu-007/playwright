@@ -10,7 +10,6 @@ export default class GroupsPageLocator {
     this.SaveButton = page.getByText('Save');
     this.EditOwnersButton = page.getByRole('button', { name: 'Edit Owners' });
     this.SelectOwnersCheckBox = page.locator("(//i[contains(@class,'fa-square')])[1]");
-    this.SaveButton = page.getByText('Save');
     this.AddButton = page.getByRole('button', { name: 'Add' });
     this.SuccessMessage = page.getByText('Successfully added group.');
     this.closeButton = page.getByRole('button', { name: 'Close' });

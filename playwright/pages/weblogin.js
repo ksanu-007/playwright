@@ -4,7 +4,6 @@ import commonMethod from '../utils/common.js';
 import { expect } from '@playwright/test';
 import LoginPageLocators from '../locators/login.locators.js';
 import testData from '../utils/testData.json';
-import test from 'node:test';
 import WebLoginPageLocator from '../locators/weblogin.locator.js';
 
 

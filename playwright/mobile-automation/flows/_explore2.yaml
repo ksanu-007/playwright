@@ -1,6 +1,0 @@
-appId: com.infinite.netsfere
----
-- tapOn:
-    id: "com.infinite.netsfere:id/call_fab"
-- waitForAnimationToEnd:
-    timeout: 5000
