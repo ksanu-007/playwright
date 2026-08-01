@@ -13,3 +13,5 @@ videos/
 screenshots/
 *.log
 .env
+debug-*.png
+*-output.txt
