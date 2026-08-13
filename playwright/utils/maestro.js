@@ -1,13 +1,41 @@
 import { execSync, spawn } from 'child_process';
 import path from 'path';
 
-const MAESTRO = `${process.env.LOCALAPPDATA}\\maestro\\maestro\\bin\\maestro.bat`;
+// Windows dev machines resolve the Maestro CLI via %LOCALAPPDATA%; macOS/Linux
+// installs (including iOS, which only runs on macOS) put `maestro` on PATH.
+// MAESTRO_BIN lets either be overridden explicitly.
+const MAESTRO = process.env.MAESTRO_BIN
+  || (process.platform === 'win32'
+    ? `${process.env.LOCALAPPDATA}\\maestro\\maestro\\bin\\maestro.bat`
+    : 'maestro');
 const FLOWS_DIR = path.resolve('mobile-automation', 'flows');
 const DEFAULT_PASSWORD = 'Abcd@1234567';
+// Official Maestro doesn't support real iOS devices at all (Simulators only).
+// Real-device runs go through the devicelab-dev/maestro-ios-device community
+// patch instead: a separate bridge process (`maestro-ios-device --team-id
+// <id> --device <udid>`, started outside this test run and left running)
+// that `maestro test` then targets via --driver-host-port/--device, in place
+// of the normal single-process Android/Simulator invocation.
+const IOS_DRIVER_PORT = process.env.IOS_DRIVER_PORT || '6001';
+// Falls back to this project's known real device — without a default here,
+// an unset env var silently disables all real-device iOS flags below (see
+// mobileEnvironmentSetup.js header for how this was found: iOS runs picked
+// up the wrong device entirely with no explicit error).
+const IOS_DEVICE_UDID = process.env.IOS_DEVICE_UDID || '00008030-000D68C42621802E';
+// Undocumented `maestro test` flag (not listed in `maestro test --help`, found
+// live via `strings` on maestro-cli-2.1.0.jar's RealIOSDeviceDriver/
+// DriverBuilder classes) required for real iOS devices: without it, `maestro
+// test` skips building/extracting the on-device XCTest runner driver into
+// ~/.maestro/maestro-iphoneos-driver-build and crashes with a
+// NoSuchFileException walking that (nonexistent) directory instead of a
+// clear "team ID required" error. Confirmed live 2026-08-07 — adding this
+// flag was the actual fix, not any bridge/DerivedData rebuild.
+const IOS_TEAM_ID = process.env.IOS_TEAM_ID || '94GC8KLYG6';
 
 class Maestro {
-  constructor() {
+  constructor({ platform = 'android' } = {}) {
     this._loggedInUser = null;
+    this.platform = platform;
   }
 
   get isLoggedIn() {
@@ -19,7 +47,17 @@ class Maestro {
   }
 
   _buildCmd(flowPath, env) {
-    const parts = [`"${MAESTRO}"`, 'test'];
+    const parts = [`"${MAESTRO}"`];
+    if (this.platform === 'ios' && IOS_DEVICE_UDID) {
+      parts.push(`--driver-host-port ${IOS_DRIVER_PORT}`, `--device ${IOS_DEVICE_UDID}`);
+    }
+    parts.push('test');
+    // `--apple-team-id` is a `test`-subcommand option (undocumented — not in
+    // `maestro test --help` — confirmed live via manual CLI invocation), so
+    // it must come after 'test', unlike --driver-host-port/--device above.
+    if (this.platform === 'ios' && IOS_DEVICE_UDID) {
+      parts.push(`--apple-team-id ${IOS_TEAM_ID}`);
+    }
     for (const [k, v] of Object.entries(env)) {
       parts.push(`--env ${k}="${v}"`);
     }
@@ -28,6 +66,7 @@ class Maestro {
   }
 
   _wakeDevice() {
+    if (this.platform !== 'android') return; // adb has no iOS/simulator equivalent
     try {
       execSync('adb shell input keyevent 224', { timeout: 5000, encoding: 'utf-8', shell: true });
       execSync('adb shell input keyevent KEYCODE_WAKEUP', { timeout: 5000, encoding: 'utf-8', shell: true });
@@ -57,8 +96,9 @@ class Maestro {
 
   ensureLoggedIn(email) {
     if (this._loggedInUser !== email) {
-      console.log(`  Maestro: login as ${email}`);
-      this._runSync(this._flowPath('ensure-logged-in.yaml'), { EMAIL: email, PASSWORD: DEFAULT_PASSWORD });
+      const flow = this.platform === 'ios' ? 'ios-ensure-logged-in.yaml' : 'ensure-logged-in.yaml';
+      console.log(`  Maestro (${this.platform}): login as ${email}`);
+      this._runSync(this._flowPath(flow), { EMAIL: email, PASSWORD: DEFAULT_PASSWORD });
       this._loggedInUser = email;
     }
   }

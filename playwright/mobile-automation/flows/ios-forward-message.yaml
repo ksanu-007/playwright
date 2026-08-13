@@ -1,0 +1,79 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-forward-message
+---
+# =============================================================================
+# iOS forwards a specific existing message to a target conversation. Requires:
+# CONVERSATION_NAME (thread the source message lives in), TARGET_TEXT (message
+# to forward), FORWARD_TO (conversation title to select in the picker — the
+# same 1:1 thread works fine, since Forward always opens a fresh "Select
+# Conversations" checklist rather than assuming a destination).
+#
+# Verified live 2026-08-07: Forward opens a conversation picker (Cancel/Send
+# at top, radio circles per row) — its title text has been observed as BOTH
+# "Select Conversations" and "Select a Conversation" across separate runs (not
+# confirmed which condition drives the wording), so the wait below matches the
+# stable "Select a" .. "Conversation" substring rather than either exact
+# string. index:0 forces the topmost/most-recent match for duplicate-titled
+# conversations, same convention as every other flow here. Forwarded message
+# renders with a "Forwarded..." label above the text.
+# =============================================================================
+# Note 2026-08-09: no launchApp here on purpose — the app is left running
+# by whichever step ran before this one, and relaunching it every single
+# step was confirmed live to force iOS back to its Conversations root
+# screen even with clearState:false (Android preserves state fine, but
+# skipping launchApp here keeps both platforms' flows on the same
+# pattern). The BackButton/tab-bar fallback below still gets us to the
+# right screen regardless of where the previous step left off. If the
+# app were ever genuinely closed/crashed, MaestroRunner's retry path
+# force-relaunches it before retrying (see maestroRunner.js).
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- longPressOn:
+    text: ${TARGET_TEXT}
+- tapOn: "Forward"
+# Bumped 2026-08-10 to match android-forward-message.yaml's own fix — this
+# picker's render time grows with the account's total conversation count
+# (now heavily accumulated from months of testing), so a short timeout here
+# risks the same failure eventually even though it hasn't been hit yet.
+# Bumped again 2026-08-12 to match android's own 90000ms bump — same
+# growing-conversation-list root cause, applied proactively here too.
+- extendedWaitUntil:
+    visible: "Select.*Conversation"
+    timeout: 90000
+- tapOn:
+    text: ${FORWARD_TO}
+    index: 0
+- tapOn: "Send"
+- extendedWaitUntil:
+    visible:
+      text: "Type Message Here.."
+    timeout: 15000

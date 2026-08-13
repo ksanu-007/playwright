@@ -1,0 +1,10 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-send-attachment
+---
+# Consolidated: create conversation + send attachment in a single Maestro
+# invocation (reduces call count — see ios-send-messages.yaml header note).
+# Requires: TARGET_USER, CONVERSATION_NAME
+- runFlow: ios-create-conversation.yaml
+- runFlow: ios-send-attachment.yaml

@@ -8,7 +8,8 @@ export default class WebLoginPageLocator {
         this.doneButton = page.locator("//button[.//span[text()='Done']]");
         this.featureXButton = page.locator(".responsiveModalContainer > div:nth-child(2) > div > div > button");
         this.loginverification = page.locator("//div[text()='How can I help?']");
-        
+        this.settingsAvatarButton = page.locator('[title="Settings"]');
+        this.logoutButton = page.locator("//button[.//span[text()='Logout']]");
     }
 }
 

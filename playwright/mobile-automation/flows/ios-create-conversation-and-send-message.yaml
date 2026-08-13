@@ -1,0 +1,9 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-create-conversation
+---
+# Consolidated: create conversation + send one message in a single Maestro
+# invocation (reduces call count — see ios-send-messages.yaml header note).
+# Requires: TARGET_USER, CONVERSATION_NAME, MESSAGE_TEXT
+- runFlow: ios-create-conversation.yaml
+- runFlow: ios-send-message.yaml

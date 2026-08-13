@@ -1,0 +1,147 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - shared
+  - session
+---
+# =============================================================================
+# Ensure iOS user is logged in (idempotent) — iOS mirror of ensure-logged-in.yaml
+#
+# Selectors captured live from the real Netsfere iOS app (physical device, via
+# `maestro hierarchy`) on 2026-08-03 — real `NETS_*` resource-ids, verified by
+# actually completing a login end-to-end. Screens mapped: onboarding carousel
+# -> email -> password -> post-login "What's New" feature carousel ->
+# conversation list.
+#
+# IMPORTANT: do NOT call hideKeyboard before tapping the Login button. This
+# patched real-device driver implements hideKeyboard as a tap-outside-the-
+# field fallback rather than a proper dismiss API. On the password screen
+# that fallback tap lands on "Forgot Password?" (positioned just below Login),
+# silently derailing the whole flow into the password-reset screen instead of
+# submitting login. The Login button sits well above where the keyboard
+# starts, so it's tappable with the keyboard still open — just tap it
+# directly. Confirmed via manual step-by-step hierarchy dumps before/after
+# hideKeyboard: the "Reset Password" screen appeared after hideKeyboard alone,
+# with no tap at all afterward.
+#
+# NETS_LoginButton is reused across screens (Login/Sign Up/Join Meeting on
+# onboarding, Continue on email entry, Login on password) — each screen only
+# has one instance visible at a time, so id-based tapOn is unambiguous once
+# you're actually on the right screen.
+# =============================================================================
+- launchApp:
+    clearState: false
+# Note 2026-08-10: dismiss the stray "Apple Account Verification" system
+# dialog inline here too (not just on MaestroRunner's retry path) — this
+# flow is the one place that still calls launchApp on every run, and the
+# dialog was confirmed live to sometimes reappear on EVERY relaunch during
+# a stretch of device re-auth expiry, not just occasionally, so a single
+# retry-path dismissal wasn't always enough headroom. The dialog can take a
+# moment to render after launchApp — a bare instant `runFlow: when: visible`
+# check reproducibly missed it (confirmed live), so this waits briefly
+# first to give it a chance to appear before checking.
+- waitForAnimationToEnd:
+    timeout: 2000
+- runFlow:
+    when:
+      visible: "Enter the password for"
+    commands:
+      - tapOn: "Not Now"
+# Cold start lands on the onboarding carousel with Login/Sign Up/Join Meeting
+- runFlow:
+    when:
+      visible: "Login"
+    commands:
+      - tapOn: "Login"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_LoginEmail"
+    commands:
+      - tapOn:
+          id: "NETS_LoginEmail"
+      - eraseText: 100
+      - inputText: ${EMAIL}
+      - tapOn: "Continue"
+      # Fixed 2026-08-12: the password screen can trigger a system Face ID
+      # prompt (autofill-saved-password biometric check) that sits on top of
+      # NETS_LoginPassword and blocks it from ever registering as visible —
+      # confirmed live via device screenshot ("Face Not Recognised" / "Try
+      # Face ID Again" / "Cancel"), reproducing on every attempt since
+      # automation can't supply a real face. Gated on "Face ID" (distinctive,
+      # not used anywhere in this app's real UI) rather than a bare
+      # "Cancel" match, same convention as the Apple-ID dialog dismiss above.
+      - waitForAnimationToEnd:
+          timeout: 2000
+      - runFlow:
+          when:
+            visible: "Face ID"
+          commands:
+            - tapOn: "Cancel"
+      - extendedWaitUntil:
+          visible:
+            id: "NETS_LoginPassword"
+          timeout: 15000
+      - tapOn:
+          id: "NETS_LoginPassword"
+      - inputText: ${PASSWORD}
+      - tapOn:
+          id: "NETS_LoginButton"
+# Post-login "What's New" feature carousel (first login of the session only)
+- runFlow:
+    when:
+      visible:
+        id: "NETS_OnboardingCancelButton"
+    commands:
+      - tapOn:
+          id: "NETS_OnboardingCancelButton"
+# Dismiss any other post-login dialogs (unverified copy, kept from Android mirror)
+- runFlow:
+    when:
+      visible:
+        text: "Close"
+    commands:
+      - tapOn:
+          text: "Close"
+- runFlow:
+    when:
+      visible: "NO, THANKS"
+    commands:
+      - tapOn: "NO, THANKS"
+- runFlow:
+    when:
+      visible: "DON'T SHOW AGAIN"
+    commands:
+      - tapOn: "DON'T SHOW AGAIN"
+# Standard iOS system-permission prompts that may appear on first login
+- runFlow:
+    when:
+      visible: "Allow While Using App"
+    commands:
+      - tapOn: "Allow While Using App"
+- runFlow:
+    when:
+      visible: "Allow Once"
+    commands:
+      - tapOn: "Allow Once"
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+- runFlow:
+    when:
+      visible: "Don't Allow"
+    commands:
+      - tapOn: "Don't Allow"
+# Confirm we're on the conversation list (verified real element, not a guess)
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 30000

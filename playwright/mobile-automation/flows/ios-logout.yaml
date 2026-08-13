@@ -1,0 +1,72 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-logout
+  - session
+---
+# =============================================================================
+# iOS user logs out — navigates from the conversation list to Settings and
+# taps Logout.
+#
+# Verified live 2026-08-05: the settings gear sits top-left on the
+# conversation list (no accessibility id found for it, unlike NETS_* icons
+# elsewhere in this screen — targeted by point, same pragmatic approach
+# already used for the "add" attachment icon). Settings has no dedicated
+# resource-id either; "Logout" is a plain-text button at the very bottom,
+# found by scrolling down (General Settings -> SecureMeet -> Security ->
+# What's New -> Help -> Legal & Privacy Policy -> Reload All Data ->
+# Logout). A single tap logs out immediately with NO confirmation dialog,
+# landing directly back on the onboarding carousel (the same screen
+# ios-ensure-logged-in.yaml's own first step already expects and handles).
+#
+# Made idempotent 2026-08-06: confirmed live that a Maestro-internal crash
+# during a run's own log-zipping step (unrelated to this flow — see
+# MaestroRunner's own docs on the DebugLogStore.finalizeRun race) can happen
+# AFTER the actual on-device logout already succeeded, causing the caller to
+# retry this flow against a device that's already logged out. The previous
+# unconditional `extendedWaitUntil: NETS_CreateConversationButton` treated
+# that as a hard failure. Wrapping the whole logout action in `when: visible`
+# on that same anchor (mirrors ensure-logged-in.yaml's own idempotent
+# pattern) makes a retry against an already-logged-out device a clean no-op
+# instead of a spurious failure.
+# =============================================================================
+- launchApp:
+    clearState: false
+- repeat:
+    times: 4
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: "BackButton"
+          commands:
+            - tapOn:
+                id: "BackButton"
+            - waitForAnimationToEnd:
+                timeout: 1000
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_CreateConversationButton"
+    commands:
+      - tapOn:
+          point: "10%,10%"
+      - extendedWaitUntil:
+          visible: "Settings"
+          timeout: 10000
+      - scrollUntilVisible:
+          element:
+            text: "Logout"
+          direction: DOWN
+          timeout: 20000
+          speed: 30
+      - tapOn: "Logout"
+- extendedWaitUntil:
+    visible: "Login"
+    timeout: 10000

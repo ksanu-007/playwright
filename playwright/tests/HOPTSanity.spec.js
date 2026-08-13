@@ -40,6 +40,16 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
 
   test('Complete HOPT sanity scenario covering all messaging features', async () => {
     test.setTimeout(3600000);
+    // Fixed 2026-08-12: was a hardcoded, permanently-reused group name —
+    // confirmed live via failure screenshot that it had accumulated
+    // messages/polls across every run since at least Jul 27, growing large
+    // enough that Primary's re-open no longer reliably rendered a just-sent
+    // reply into the DOM (openConversationByText only clicks the list item,
+    // it doesn't scroll-to-latest), causing isConversationTextVisible to
+    // miss it. A fresh, uniquely-suffixed name per run — same convention
+    // already used elsewhere in this repo (e.g. webtoandroid.spec.js's
+    // makeGroup()) — gives each run an empty group instead.
+    const GROUP_NAME = `HOPT_Sanity_Group-${Date.now()}`;
 
     // =========================================================================
     // STEP 1: Login all four users (parallel with single attempt each)
@@ -64,7 +74,7 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
       // Create group conversation with all users
       await convP.startGroupConversation(
         [USERS.user1.displayName, USERS.user2.displayName, USERS.user3.displayName],
-        'HOPT_Sanity_Group'
+        GROUP_NAME
       );
       await pageP.waitForTimeout(800);
       await expect(convP.convLoc.textareaInput).toBeVisible({ timeout: 10000 });
@@ -82,12 +92,12 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
     // STEP 5: Other users verify messages and reply
     // =========================================================================
     await test.step('Step 5 - Users verify and reply', async () => {
-      await conversations.primary.openConversationByText('HOPT_Sanity_Group', 10000);
+      await conversations.primary.openConversationByText(GROUP_NAME, 10000);
 
       await Promise.all(['user1', 'user2', 'user3'].map(async (key) => {
         const conv = conversations[key];
         await conv.dismissFeatureModal();
-        const opened = await conv.openConversationByText('HOPT_Sanity_Group', 30000);
+        const opened = await conv.openConversationByText(GROUP_NAME, 30000);
         expect(opened).toBeTruthy();
 
         for (const msg of TEST_MESSAGES) {
@@ -109,7 +119,7 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
 
       // Primary sees all replies
       const convP = conversations.primary;
-      await convP.openConversationByText('HOPT_Sanity_Group', 15000);
+      await convP.openConversationByText(GROUP_NAME, 15000);
       for (const { text } of replies) {
         const found = await convP.isConversationTextVisible(text, 20000);
         expect(found).toBeTruthy();
@@ -121,7 +131,7 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
     // =========================================================================
     await test.step('Step 6 - Send attachments', async () => {
       const convP = conversations.primary;
-      await convP.openConversationByText('HOPT_Sanity_Group', 10000);
+      await convP.openConversationByText(GROUP_NAME, 10000);
 
       const attachments = [
         { name: 'sample-image.png', filePath: path.resolve('test-files', 'sample-image.png') },
@@ -141,7 +151,7 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
     // =========================================================================
     await test.step('Step 7 - Share location', async () => {
       const convP = conversations.primary;
-      await convP.openConversationByText('HOPT_Sanity_Group', 10000);
+      await convP.openConversationByText(GROUP_NAME, 10000);
       await convP.shareLocation();
       const shared = await convP.verifyLocationReceived(20000);
       expect(shared).toBeTruthy();
@@ -149,7 +159,7 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
       await Promise.all(['user1', 'user2', 'user3'].map(async (key) => {
         const conv = conversations[key];
         await conv.dismissFeatureModal();
-        await conv.openConversationByText('HOPT_Sanity_Group', 20000);
+        await conv.openConversationByText(GROUP_NAME, 20000);
         const received = await conv.verifyLocationReceived(20000);
         expect(received).toBeTruthy();
       }));
@@ -163,7 +173,7 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
       const POLL_Q = 'Is HOPT working correctly?';
       const votes = { user1: 'Yes', user2: 'No', user3: 'Yes' };
 
-      await convP.openConversationByText('HOPT_Sanity_Group', 10000);
+      await convP.openConversationByText(GROUP_NAME, 10000);
       await convP.createPoll(POLL_Q, 'Yes', 'No');
       const pollCreated = await convP.verifyPollResult(POLL_Q, 'Yes', 15000);
       expect(pollCreated).toBeTruthy();
@@ -171,17 +181,17 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
       await Promise.all(['user1', 'user2', 'user3'].map(async (key) => {
         const conv = conversations[key];
         await conv.dismissFeatureModal();
-        await conv.openConversationByText('HOPT_Sanity_Group', 20000);
+        await conv.openConversationByText(GROUP_NAME, 20000);
         const received = await conv.verifyPollResult(POLL_Q, 'Yes', 20000);
         expect(received).toBeTruthy();
       }));
 
       await Promise.all(Object.entries(votes).map(async ([key, opt]) => {
-        await conversations[key].openConversationByText('HOPT_Sanity_Group', 10000);
+        await conversations[key].openConversationByText(GROUP_NAME, 10000);
         await conversations[key].votePoll(opt);
       }));
 
-      await convP.openConversationByText('HOPT_Sanity_Group', 10000);
+      await convP.openConversationByText(GROUP_NAME, 10000);
       const resultVisible = await convP.verifyPollResult(POLL_Q, 'Yes', 10000);
       expect(resultVisible).toBeTruthy();
     });
@@ -193,7 +203,7 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
       const convP = conversations.primary;
       const pageP = pages.primary;
 
-      await convP.openConversationByText('HOPT_Sanity_Group', 10000);
+      await convP.openConversationByText(GROUP_NAME, 10000);
       await convP.startAudioCall();
       const callConnected = await convP.waitForCallConnected(60000);
       expect(callConnected).toBeTruthy();

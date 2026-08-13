@@ -7,8 +7,9 @@ tags:
 # Navigate to a conversation by name
 # Requires: CONVERSATION_NAME
 # =============================================================================
-- launchApp:
-    clearState: false
+# Note 2026-08-10: no launchApp here on purpose — see ios-send-message.yaml's
+# header for why (relaunching every step forces iOS back to its
+# Conversations root screen). MaestroRunner force-relaunches on retry only.
 - runFlow:
     when:
       visible:

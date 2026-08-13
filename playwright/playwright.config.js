@@ -4,6 +4,7 @@ export default defineConfig({
   timeout: 900000,
   expect: { timeout: 15000 },
   testDir: './tests',
+  globalSetup: './utils/mobileEnvironmentSetup.js',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 0 : 2,

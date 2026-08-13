@@ -1,0 +1,15 @@
+appId: com.infinite.netsfere
+tags:
+  - android-relaunch-app
+---
+# =============================================================================
+# Force-relaunch used ONLY by MaestroRunner's retry path (see
+# maestroRunner.js), never by a flow's own happy path — every "interior"
+# Android flow in this repo skips launchApp for consistency with the iOS
+# flows (Android itself preserves screen state fine across launchApp calls,
+# but skipping it here keeps both platforms on the same pattern). If a step
+# still fails (e.g. the app genuinely crashed or got backgrounded), this
+# brings it back before the retry attempt runs.
+# =============================================================================
+- launchApp:
+    clearState: false

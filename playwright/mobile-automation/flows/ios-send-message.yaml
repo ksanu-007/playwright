@@ -1,10 +1,15 @@
-appId: com.infinite.netsfere
+appId: com.infinite.netsfere-ios
 tags:
-  - android-send-message
+  - ios-send-message
 ---
 # =============================================================================
-# Android navigates to a conversation and sends a text message
-# Requires: CONVERSATION_NAME, MESSAGE_TEXT
+# iOS navigates to a conversation and sends a text message — mirror of
+# android-send-message.yaml. Requires: CONVERSATION_NAME, MESSAGE_TEXT.
+# Selectors verified live on 2026-08-03.
+#
+# IMPORTANT: no hideKeyboard before tapping send — see ios-ensure-logged-in.yaml
+# for why (this driver's hideKeyboard is a tap-based fallback that can mis-hit
+# a nearby element instead of dismissing the keyboard).
 # =============================================================================
 # Note 2026-08-09: no launchApp here on purpose — the app is left running
 # by whichever step ran before this one, and relaunching it every single
@@ -18,29 +23,43 @@ tags:
 - runFlow:
     when:
       visible:
-        id: "com.infinite.netsfere:id/send_message_edittext"
+        id: "BackButton"
     commands:
-      - back
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
 - extendedWaitUntil:
     visible:
-      id: "com.infinite.netsfere:id/new_conversation_fab"
+      id: "NETS_CreateConversationButton"
     timeout: 15000
 - scrollUntilVisible:
     element:
+      id: "NETS_ConversationTitle"
       text: ${CONVERSATION_NAME}
     direction: DOWN
     timeout: 30000
     speed: 40
+# Fixed 2026-08-04: multiple conversations can share the same title (see
+# ios-create-conversation.yaml header — always-fresh creation means
+# duplicates accumulate). index:0 forces the topmost (most recently
+# active) match, confirmed via screenshot to sort newest-first.
 - tapOn:
+    id: "NETS_ConversationTitle"
     text: ${CONVERSATION_NAME}
+    index: 0
 - assertVisible:
-    id: "com.infinite.netsfere:id/send_message_edittext"
+    text: "Type Message Here.."
 - tapOn:
-    id: "com.infinite.netsfere:id/send_message_edittext"
+    text: "Type Message Here.."
 - inputText: ${MESSAGE_TEXT}
-- hideKeyboard
 - tapOn:
-    id: "com.infinite.netsfere:id/send_button"
+    id: "paperplane.fill"
 - extendedWaitUntil:
     visible:
       text: ".*${MESSAGE_TEXT}.*"

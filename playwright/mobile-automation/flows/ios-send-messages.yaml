@@ -1,0 +1,75 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-send-message
+---
+# =============================================================================
+# iOS sends up to 3 text messages in a single Maestro session — consolidated
+# variant of ios-send-message.yaml, built to minimize the number of separate
+# `maestro test` invocations (each invocation risks hitting the confirmed
+# upstream maestro-ios-device restart bug — see conversation notes).
+# Requires: CONVERSATION_NAME, MESSAGE_TEXT_1, MESSAGE_TEXT_2, MESSAGE_TEXT_3.
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+# Fixed 2026-08-04: multiple conversations can share the same title (see
+# ios-create-conversation.yaml header — always-fresh creation means
+# duplicates accumulate). index:0 forces the topmost (most recently
+# active) match, confirmed via screenshot to sort newest-first.
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- tapOn:
+    text: "Type Message Here.."
+- inputText: ${MESSAGE_TEXT_1}
+- tapOn:
+    id: "paperplane.fill"
+- extendedWaitUntil:
+    visible:
+      text: ".*${MESSAGE_TEXT_1}.*"
+    timeout: 15000
+- tapOn:
+    text: "Type Message Here.."
+- inputText: ${MESSAGE_TEXT_2}
+- tapOn:
+    id: "paperplane.fill"
+- extendedWaitUntil:
+    visible:
+      text: ".*${MESSAGE_TEXT_2}.*"
+    timeout: 15000
+- tapOn:
+    text: "Type Message Here.."
+- inputText: ${MESSAGE_TEXT_3}
+- tapOn:
+    id: "paperplane.fill"
+- extendedWaitUntil:
+    visible:
+      text: ".*${MESSAGE_TEXT_3}.*"
+    timeout: 15000

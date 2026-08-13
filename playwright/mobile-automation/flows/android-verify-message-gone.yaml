@@ -1,0 +1,44 @@
+appId: com.infinite.netsfere
+tags:
+  - cross-platform
+  - android-verify
+---
+# =============================================================================
+# Android verifies a specific message's text is NO LONGER visible in a
+# conversation — used to confirm a deletion synced from the other side.
+# Requires: CONVERSATION_NAME, TARGET_TEXT (the original message content).
+# Mirror of ios-verify-message-gone.yaml — see its header for why this
+# checks the ORIGINAL text's disappearance rather than matching the
+# "deleted by ..." placeholder text directly (that placeholder's exact
+# wording isn't reliably exposed to accessibility tools on iOS, and using
+# the same disappearance check on both platforms keeps the verification
+# strategy consistent regardless of which side actually renders the
+# placeholder correctly).
+# =============================================================================
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: ${CONVERSATION_NAME}
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/send_message_edittext"
+    timeout: 15000
+- extendedWaitUntil:
+    notVisible:
+      text: ${TARGET_TEXT}
+    timeout: 45000
+- back

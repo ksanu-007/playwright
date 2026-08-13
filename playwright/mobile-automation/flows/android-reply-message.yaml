@@ -1,11 +1,18 @@
 appId: com.infinite.netsfere
 tags:
   - cross-platform
-  - android-verify
+  - android-reply-message
 ---
 # =============================================================================
-# Android verifies a message in a specific conversation
-# Requires: CONVERSATION_NAME, EXPECTED_TEXT
+# Android replies to a specific existing message (long-press -> reply_item).
+# Requires: CONVERSATION_NAME, TARGET_TEXT, REPLY_TEXT.
+#
+# Verified live 2026-08-07: unlike iOS's text-labeled context menu, long-press
+# here enters a "N Selected" action bar (reply_item, forward_item, and an
+# overflow "More options" for Delete/Copy/etc — see android-delete-message.yaml
+# / android-forward-message.yaml). Tapping reply_item opens the quoted-reply
+# compose bar; the edittext still needs an explicit tap before inputText, same
+# as every other Android send flow in this repo.
 # =============================================================================
 # Note 2026-08-09: no launchApp here on purpose — the app is left running
 # by whichever step ran before this one, and relaunching it every single
@@ -25,7 +32,7 @@ tags:
 - extendedWaitUntil:
     visible:
       id: "com.infinite.netsfere:id/new_conversation_fab"
-    timeout: 30000
+    timeout: 15000
 - scrollUntilVisible:
     element:
       text: ${CONVERSATION_NAME}
@@ -34,20 +41,21 @@ tags:
     speed: 40
 - tapOn:
     text: ${CONVERSATION_NAME}
-# Fixed 2026-08-06: plain assertVisible right after tapOn raced the chat
-# screen's own render/transition (confirmed live: the message had genuinely
-# already arrived — visible in the conversation-list preview — but the
-# immediately-following assertVisible for the edittext still failed).
-# Same fix already applied on the iOS mirror (see ios-verify-message.yaml's
-# own header note) — extendedWaitUntil tolerates the transition instead of
-# asserting instantly.
 - extendedWaitUntil:
     visible:
       id: "com.infinite.netsfere:id/send_message_edittext"
     timeout: 15000
+- longPressOn:
+    text: ${TARGET_TEXT}
+- tapOn:
+    id: "com.infinite.netsfere:id/reply_item"
+- tapOn:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+- inputText: ${REPLY_TEXT}
+- hideKeyboard
+- tapOn:
+    id: "com.infinite.netsfere:id/send_button"
 - extendedWaitUntil:
     visible:
-      text: ${EXPECTED_TEXT}
-      id: "com.infinite.netsfere:id/message_content_textview"
-    timeout: 30000
-- back
+      text: ".*${REPLY_TEXT}.*"
+    timeout: 15000

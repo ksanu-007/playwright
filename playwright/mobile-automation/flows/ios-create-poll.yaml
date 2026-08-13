@@ -1,0 +1,83 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-create-poll
+---
+# =============================================================================
+# iOS creates a quick poll in a conversation — mirror of
+# android-create-poll.yaml.
+# Requires: CONVERSATION_NAME, POLL_QUESTION, OPTION1, OPTION2.
+# Verified live end-to-end on 2026-08-03. Note: NETS_QuickPollCreateButton
+# sits low enough on screen to be obscured by the keyboard — tapping it while
+# the keyboard covers it lands on the keyboard instead (confirmed: produced a
+# stray keystroke in testing). Tap a neutral static label first
+# (NETS_QuickPollOptionLabel) to shift focus and drop the keyboard before
+# tapping Create — same lesson as the login hideKeyboard bug, different
+# mechanism (this app's keyboard dismisses fine on focus-loss; it's
+# `hideKeyboard`'s tap-fallback specifically that's unsafe, not keyboard
+# dismissal in general).
+# =============================================================================
+# Note 2026-08-10: no launchApp here on purpose — see ios-send-message.yaml's
+# header for why (relaunching every step forces iOS back to its
+# Conversations root screen). MaestroRunner force-relaunches on retry only.
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+# Fixed 2026-08-04: multiple conversations can share the same title (see
+# ios-create-conversation.yaml header — always-fresh creation means
+# duplicates accumulate). index:0 forces the topmost (most recently
+# active) match, confirmed via screenshot to sort newest-first.
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- tapOn: "add"
+- extendedWaitUntil:
+    visible: "Create Poll"
+    timeout: 10000
+- tapOn: "Create Poll"
+- tapOn:
+    id: "NETS_QuickPollQuestion"
+- inputText: ${POLL_QUESTION}
+- tapOn:
+    id: "NETS_QuickPollAnswer"
+- inputText: ${OPTION1}
+- tapOn:
+    id: "NETS_QuickPollAnswer"
+    text: "Answer 2"
+- inputText: ${OPTION2}
+- tapOn:
+    id: "NETS_QuickPollOptionLabel"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_QuickPollCreateButton"
+    timeout: 5000
+- tapOn:
+    id: "NETS_QuickPollCreateButton"
+- extendedWaitUntil:
+    visible:
+      text: ".*${POLL_QUESTION}.*"
+    timeout: 15000

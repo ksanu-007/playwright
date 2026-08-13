@@ -1,0 +1,104 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-create-call-group
+---
+# =============================================================================
+# iOS creates a group conversation for calling tests — mirror of
+# android-create-call-group.yaml.
+# GROUP_NAME is used for navigation (search/select flow doesn't verified-set a
+# custom title live — see ios-edit-participants.yaml note; if untitled, the
+# group will default to a system-generated name, not GROUP_NAME, since that
+# part of the flow is unverified).
+# Adds Web1 (via CONVERSATION_NAME) + TARGET_USER1 (+ optional TARGET_USER2).
+# Requires: GROUP_NAME, CONVERSATION_NAME, TARGET_USER1, PASSWORD
+# Optional: TARGET_USER2
+# See ios-edit-participants.yaml for the same selector/verification notes,
+# including the fixed 2026-08-04 search-field-not-cleared-between-searches bug
+# and the fixed 2026-08-04 index:1 row-selection fix (see
+# ios-create-conversation.yaml header for the full root-cause story).
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 30000
+- tapOn:
+    id: "NETS_CreateConversationButton"
+- extendedWaitUntil:
+    visible: "New Conversation"
+    timeout: 10000
+- tapOn:
+    text: "New Conversation"
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+- tapOn:
+    text: "Search Name or Invite by Email"
+- eraseText: 50
+- inputText: ${CONVERSATION_NAME}
+- extendedWaitUntil:
+    visible: ${CONVERSATION_NAME}
+    timeout: 15000
+- tapOn:
+    text: ${CONVERSATION_NAME}
+    index: 1
+- tapOn:
+    text: "Search Name or Invite by Email"
+- eraseText: 50
+- inputText: ${TARGET_USER1}
+- extendedWaitUntil:
+    visible: ${TARGET_USER1}
+    timeout: 15000
+- tapOn:
+    text: ${TARGET_USER1}
+    index: 1
+- runFlow:
+    when:
+      visible: ${TARGET_USER2}
+    commands:
+      - tapOn:
+          text: "Search Name or Invite by Email"
+      - eraseText: 50
+      - inputText: ${TARGET_USER2}
+      - extendedWaitUntil:
+          visible: ${TARGET_USER2}
+          timeout: 15000
+      - tapOn:
+          text: ${TARGET_USER2}
+          index: 1
+- tapOn:
+    id: "NETS_createButtonTapped"
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_doneButtonTapped"
+    commands:
+      - tapOn:
+          id: "NETS_doneButtonTapped"
+- extendedWaitUntil:
+    visible:
+      text: "Type Message Here.."
+    timeout: 15000

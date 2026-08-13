@@ -6,8 +6,9 @@ tags:
 # Android creates a quick poll in a conversation
 # Requires: CONVERSATION_NAME, POLL_QUESTION, OPTION1, OPTION2
 # =============================================================================
-- launchApp:
-    clearState: false
+# Note 2026-08-10: no launchApp here on purpose — see ios-send-message.yaml's
+# header for why (relaunching every step forces iOS back to its
+# Conversations root screen). MaestroRunner force-relaunches on retry only.
 - runFlow:
     when:
       visible:

@@ -6,24 +6,31 @@
       "vaultUrl" : "https://vault.netsferetest.com/#/login"
     },
     "logincreds": {
-      "name": "autos",
+      "name": "nutriglow",
       "email" : "@sanu.netsferetest.org",
       "password": "Abcd@1234567"
     },
     "userRange": {
-      "baseUserId": "kumaru",
+      "baseUserId": "autos",
       "emailDomain": "@sanu.netsferetest.org",
-      "startIndex": 1001,
-      "endIndex": 3000
+      "startIndex": 101,
+      "endIndex": 110
     },
     "vaultLogin": {
        "username": "saims12@sanu.netsferetest.org",
       "password": "Abcd@1234567"
     },
     "conversationTestData": {
-      "user1": "16415u31",
-      "user2": "16415u32",
-      "user3": "16415u33",
+      "user1": "nutriglow1",
+      "user2": "nutriglow2",
+      "user3": "nutriglow3",
+      "user4": "nutriglow4",
+      "user5": "nutriglow5",
+      "user6": "nutriglow6",
+      "user7": "nutriglow7",
+      "user8": "nutriglow8",
+      "user9": "nutriglow9",
+      "user10": "nutriglow10",
       "message": "Hi",
       "pollquestion": "Test Poll?",
       "option1": "Option A",
@@ -65,8 +72,46 @@
   "gmail": {
     "email": "kumar.sanu@netsfere.com",
     "appPassword": "NetSfere1234"
+  },
+
+  "iosUser": {
+    "username": "netsauto",
+    "email": "netsauto@sanu.netsferetest.org",
+    "password": "Abcd@1234567"
+  },
+  "androidUser": {
+    "username": "netsauto101",
+    "email": "netsauto101@sanu.netsferetest.org",
+    "password": "Abcd@1234567"
+  },
+  "webUser": {
+    "username": "netsauto102",
+    "email": "netsauto102@sanu.netsferetest.org",
+    "password": "Abcd@1234567"
+  },
+  "messages": {
+    "iosGreeting": "Hello from iOS",
+    "androidReply": "Hello from Android",
+    "groupGreeting": "Hello Everyone",
+    "webReply": "Hello from Web",
+    "androidReplySource": "AndroidReplySource",
+    "iosReplyContent": "iOSReplyToAndroidMessage",
+    "iosForwardSource": "iOSForwardSourceMessage",
+    "androidDeleteTarget": "AndroidDeleteTargetMessage"
+  },
+  "groupName": "Group Conversation Automation",
+  "groupAttachmentFileName": "GroupAttachmentSample.pdf",
+  "oneToOneAttachmentFileName": "OneToOneAttachmentSample.pdf",
+
+  "AIConversationSummary": {
+    "minMessageCount": 100,
+    "maxMessageCount": 5000,
+    "defaultMessageCount": 500,
+    "defaultMessageDelayMs": 150,
+    "defaultSummaryTimeoutMs": 180000,
+    "checkpointInterval": 100,
+    "topicBlockSize": 50,
+    "groupNamePrefix": "10 User High Volume Discussion"
   }
-
-
 
   }

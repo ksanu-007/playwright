@@ -61,28 +61,53 @@ export default class ConversationHelper {
     await this._waitForTextarea();
   }
 
+  // Searches the (already-open) participant picker for `user` and clicks the
+  // matching result. Retries a few times with a real polling wait rather than
+  // a fixed delay + single isVisible() check — under real network conditions
+  // the autocomplete search can occasionally take longer than a short fixed
+  // wait to return results, which previously caused silent, intermittent
+  // drops when adding several participants in a row (confirmed live: the
+  // same fixed-1s-wait code added 2 of 3 users on one run and only 1 of 9 on
+  // another, with no error — isVisible() with a timeout does not itself poll,
+  // so the only thing standing between "found" and "not found" was whether
+  // the fixed wait happened to be long enough that one time).
+  async _searchAndSelectParticipant(user, attempts = 3) {
+    const input = this.page.locator('.namegenEmailReplace').first();
+    for (let attempt = 0; attempt < attempts; attempt++) {
+      await input.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+      await input.click({ force: true }).catch(() => {});
+      await input.fill(user, { force: true }).catch(() => {});
+
+      const exact = this.page.locator(`//div[@displayname='${user}']`).first();
+      const contains = this.page.locator(`//div[contains(@displayname,'${user}') or contains(text(),'${user}')]`).first();
+      const found = await exact.waitFor({ state: 'visible', timeout: 6000 }).then(() => exact).catch(() =>
+        contains.waitFor({ state: 'visible', timeout: 2000 }).then(() => contains).catch(() => null)
+      );
+      if (found) {
+        await found.click({ force: true });
+        await this.page.waitForTimeout(400);
+        return true;
+      }
+      await input.fill('', { force: true }).catch(() => {});
+      await this.page.waitForTimeout(300);
+    }
+    return false;
+  }
+
   async startGroupConversation(users, groupName = null) {
     await this._dismissOverlay();
     await this.page.locator('[title="Start Conversation"]').click({ force: true });
     await this.page.waitForTimeout(800);
     await this._dismissOverlay();
+    const added = [];
     for (const user of users) {
-      const input = this.page.locator('.namegenEmailReplace').first();
-      await input.waitFor({ state: 'visible', timeout: 5000 });
-      await input.click({ force: true });
-      await input.fill(user, { force: true });
-      await this.page.waitForTimeout(1000);
-      const result = this.page.locator(`//div[@displayname='${user}']`).first();
-      if (await result.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await result.click({ force: true });
-        await this.page.waitForTimeout(400);
-      } else {
-        const genericMatch = this.page.locator(`//div[contains(text(),'${user}')]`).first();
-        if (await genericMatch.isVisible({ timeout: 5000 }).catch(() => false)) {
-          await genericMatch.click({ force: true });
-          await this.page.waitForTimeout(400);
-        }
-      }
+      const ok = await this._searchAndSelectParticipant(user);
+      if (ok) added.push(user);
+      else console.warn(`startGroupConversation: could not find/select "${user}" after retries`);
+    }
+    if (added.length < users.length) {
+      const missing = users.filter(u => !added.includes(u));
+      console.warn(`startGroupConversation: ${missing.length} participant(s) not added: ${missing.join(', ')}`);
     }
     if (groupName) {
       const nameInput = this.page.locator('input.namegenTitleReplace').first();
@@ -96,6 +121,7 @@ export default class ConversationHelper {
     await this.page.getByText('Create', { exact: true }).click({ force: true, timeout: 5000 });
     await this.page.waitForTimeout(800);
     await this._waitForTextarea();
+    return added;
   }
 
   async sendMessage(text) {
@@ -164,14 +190,25 @@ export default class ConversationHelper {
         await this.page.waitForTimeout(800);
         return true;
       }
-      const items = await this.page.locator('div.scrollbox > div > div').all();
+      // Fixed 2026-08-10: this fallback reproducibly threw when the
+      // conversation list re-rendered between .all() and the loop below
+      // (a live-updating list — new incoming messages reorder it mid-loop),
+      // leaving a stale element reference that crashes .textContent()/
+      // .boundingBox() instead of just skipping that one item. Wrapping each
+      // item in its own try/catch keeps one stale row from failing the
+      // whole search.
+      const items = await this.page.locator('div.scrollbox > div > div').all().catch(() => []);
       for (const item of items) {
-        const t = await item.textContent();
-        const r = await item.boundingBox();
-        if (t && r && t.includes(title)) {
-          await item.click();
-          await this.page.waitForTimeout(800);
-          return true;
+        try {
+          const t = await item.textContent();
+          const r = await item.boundingBox();
+          if (t && r && t.includes(title)) {
+            await item.click();
+            await this.page.waitForTimeout(800);
+            return true;
+          }
+        } catch {
+          // stale element from a live list re-render — skip and keep looking
         }
       }
       await this.page.waitForTimeout(800);
@@ -210,18 +247,9 @@ export default class ConversationHelper {
     }
     await this.page.waitForTimeout(800);
     await this._dismissOverlay();
-    const input = this.page.locator('.namegenEmailReplace').first();
     let added = 0;
     for (const u of users) {
-      if (await input.isVisible({ timeout: 1000 }).catch(() => false)) {
-        await input.fill(u);
-        await this.page.waitForTimeout(800);
-        const r = this.page.locator(`(//div[contains(@displayname,'${u}')])[1]`);
-        if (await r.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await r.click({ force: true });
-          added++;
-        }
-      }
+      if (await this._searchAndSelectParticipant(u)) added++;
     }
     const save = this.page.locator('//span[text() = "Save"]');
     if (await save.isVisible({ timeout: 1500 }).catch(() => false)) {
@@ -558,6 +586,85 @@ export default class ConversationHelper {
     while (Date.now() - start < timeout) {
       const body = await this.page.locator('body').textContent().catch(() => '');
       if (body.includes(text)) return true;
+      await this.page.waitForTimeout(500);
+    }
+    return false;
+  }
+
+  // Replies to the most recent message (matches this repo's mobile
+  // convention of always acting on the just-sent message — see
+  // ios-reply-message.yaml's own header note on why acting on an older,
+  // possibly-duplicated message text is unreliable). Discovered live
+  // 2026-08-10: each message row has a "Reply" element exposed via a
+  // `title="Reply"` attribute (NOT aria-label, despite Playwright's own
+  // accessibility snapshot reporting it as an accessible name "Reply" —
+  // that name is computed FROM the title attribute). Clicking it opens a
+  // quote-preview banner ("You / <original text>", with an X to cancel)
+  // above the compose textarea; sent reply renders as one bubble containing
+  // the quoted preview + the new text, matching the mobile apps' pattern.
+  async replyToMessage(replyText) {
+    await this._dismissOverlay();
+    await this.page.locator('[title="Reply"]').last().click({ force: true });
+    await this.page.waitForTimeout(500);
+    const ta = this.page.locator('textarea').first();
+    await ta.waitFor({ state: 'visible', timeout: 10000 });
+    await ta.click({ force: true });
+    await ta.fill(replyText);
+    await this._dismissOverlay();
+    await this.page.keyboard.press('Enter');
+    await this.page.waitForTimeout(800);
+  }
+
+  // Forwards the most recent message to a conversation matching
+  // targetTitle. Discovered live 2026-08-10: clicking a message's
+  // `title="Forward"` element opens a full "Select Conversations" screen
+  // (CANCEL/FORWARD text buttons top, radio circle per row) — the same
+  // picker pattern as iOS/Android's own Forward feature.
+  //
+  // Fixed 2026-08-10: `getByText(targetTitle).first()` reproducibly
+  // selected the PAGE HEADER's own conversation-title text (which also
+  // matches targetTitle) instead of a picker row — the header sits above
+  // the "Select Conversations" heading, so the click landed on nothing
+  // selectable and the picker silently stayed at "0 selected". Filtering
+  // matches to those with a Y position below the heading's own bounding box
+  // reliably finds an actual list row instead. The row's own text isn't
+  // directly clickable (it's not the radio control), so this clicks at a
+  // fixed X coordinate (1230px, verified live against the picker's radio
+  // column) at the matched row's Y — mouse-coordinate clicking, same
+  // fallback class of approach as this repo's mobile point-based taps.
+  async forwardMessage(targetTitle) {
+    await this._dismissOverlay();
+    await this.page.locator('[title="Forward"]').last().click({ force: true });
+    const heading = this.page.getByText('Select Conversations', { exact: true }).first();
+    await heading.waitFor({ state: 'visible', timeout: 10000 });
+    const headingBox = await heading.boundingBox();
+    const matches = await this.page.getByText(targetTitle, { exact: false }).all();
+    let rowBox = null;
+    for (const m of matches) {
+      const box = await m.boundingBox();
+      if (box && headingBox && box.y > headingBox.y + headingBox.height) {
+        rowBox = box;
+        break;
+      }
+    }
+    if (!rowBox) throw new Error(`forwardMessage: no conversation row matching "${targetTitle}" found in the picker`);
+    await this.page.mouse.click(1230, rowBox.y + rowBox.height / 2);
+    await this.page.waitForTimeout(300);
+    await this.page.getByText('Forward', { exact: true }).click({ force: true });
+    await this.page.waitForTimeout(800);
+  }
+
+  // Verifies a specific message's text has disappeared — used to confirm a
+  // deletion synced in from iOS/Android. The Web client has no per-message
+  // delete action of its own in this app's UI (confirmed live 2026-08-10 via
+  // accessibility snapshot, title-attribute search, hover, and right-click —
+  // only Reply/Forward are exposed per message), so Web is verify-only for
+  // deletions, never the deleter.
+  async verifyMessageGone(text, timeout = 45000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      const body = await this.page.locator('body').textContent().catch(() => '');
+      if (!body.includes(text)) return true;
       await this.page.waitForTimeout(500);
     }
     return false;
