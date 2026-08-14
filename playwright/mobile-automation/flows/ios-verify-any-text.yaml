@@ -1,0 +1,71 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-verify
+---
+# =============================================================================
+# iOS verifies any visible text (by substring) in a specific conversation —
+# sibling of ios-verify-message.yaml, but without that flow's
+# id: "NETS_ChatMessageContent" constraint. Requires: CONVERSATION_NAME,
+# EXPECTED_TEXT.
+#
+# Verified live 2026-08-05: a Web-sent attachment's filename caption (e.g.
+# "file_example_JPG_1MB.jpg(1018.17 KB)") is plainly visible on screen and
+# clearly readable in a screenshot, but ios-verify-message.yaml's stricter
+# selector (text + that specific id) reproducibly failed 3/3 times against
+# it — plain-text message bubbles carry that id, but attachment filename
+# captions don't. Same gap hit again the same day for a Web-shared location
+# ("My Location" caption, reproducibly failed 3/3 with ios-verify-message.yaml
+# despite being visibly on screen) — so this isn't attachment-specific, it's
+# any non-typed-text content (attachments, locations, and likely polls/other
+# rich content later). Plain text-visibility (no id filter) is used here
+# instead of tightening/changing the existing flow, so
+# ios-verify-message.yaml's own proven behavior for real typed text messages
+# stays untouched.
+# =============================================================================
+# Note 2026-08-09: no launchApp here on purpose — the app is left running
+# by whichever step ran before this one, and relaunching it every single
+# step was confirmed live to force iOS back to its Conversations root
+# screen even with clearState:false (Android preserves state fine, but
+# skipping launchApp here keeps both platforms' flows on the same
+# pattern). The BackButton/tab-bar fallback below still gets us to the
+# right screen regardless of where the previous step left off. If the
+# app were ever genuinely closed/crashed, MaestroRunner's retry path
+# force-relaunches it before retrying (see maestroRunner.js).
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- extendedWaitUntil:
+    visible:
+      text: ".*${EXPECTED_TEXT}.*"
+    timeout: 45000
+- tapOn:
+    id: "BackButton"

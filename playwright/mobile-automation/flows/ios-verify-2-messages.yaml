@@ -1,0 +1,64 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-verify
+---
+# =============================================================================
+# iOS verifies TWO messages in a specific conversation in a single Maestro
+# session — consolidated variant of ios-verify-message.yaml (reduces call
+# count — see ios-send-messages.yaml header note).
+# Requires: CONVERSATION_NAME, EXPECTED_TEXT_1, EXPECTED_TEXT_2.
+#
+# Fixed 2026-08-04: same fix as ios-verify-message.yaml — use extendedWaitUntil
+# instead of plain assertVisible for expected-text checks, to tolerate real
+# web-to-iOS cross-device sync latency instead of Maestro's short default.
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+# Fixed 2026-08-04: multiple conversations can share the same title (see
+# ios-create-conversation.yaml header — always-fresh creation means
+# duplicates accumulate). index:0 forces the topmost (most recently
+# active) match, confirmed via screenshot to sort newest-first.
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- extendedWaitUntil:
+    visible:
+      text: ${EXPECTED_TEXT_1}
+      id: "NETS_ChatMessageContent"
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      text: ${EXPECTED_TEXT_2}
+      id: "NETS_ChatMessageContent"
+    timeout: 45000
+- tapOn:
+    id: "BackButton"

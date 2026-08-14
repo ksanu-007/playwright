@@ -1,0 +1,20 @@
+appId: com.infinite.netsfere
+tags:
+  - android-vote-poll
+---
+- assertVisible:
+    id: "com.infinite.netsfere:id/send_message_edittext"
+# =============================================================================
+# Android votes on a visible poll by tapping a specific option text
+# Requires: VOTE_OPTION
+# Assumes: inside the conversation, poll is visible
+# =============================================================================
+# Note 2026-08-10: no launchApp here on purpose — see ios-send-message.yaml's
+# header for why (relaunching every step forces iOS back to its
+# Conversations root screen). MaestroRunner force-relaunches on retry only.
+- extendedWaitUntil:
+    visible:
+      text: ${VOTE_OPTION}
+    timeout: 15000
+- tapOn:
+    text: ${VOTE_OPTION}

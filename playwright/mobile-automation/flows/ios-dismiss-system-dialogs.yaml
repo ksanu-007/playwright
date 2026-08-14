@@ -1,0 +1,40 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-dismiss-system-dialogs
+---
+# =============================================================================
+# Best-effort dismissal of a stray iOS SYSTEM dialog that sits on top of the
+# app and blocks every subsequent tap/assertion — unrelated to the app
+# itself. Hit live twice in one session (2026-08-07): a device-level "Apple
+# Account Verification" prompt ("Enter the password for ... in Settings",
+# Not Now / Settings) reappeared unpredictably and made every following
+# assertion fail with a confusing "element not visible" error that had
+# nothing to do with the actual flow.
+#
+# Deliberately gated on the dialog's own distinctive "Enter the password
+# for" body text (not a bare "Not Now"/"Cancel" match) — this app has
+# legitimate Cancel/OK buttons all over its real UI (attachment/forward
+# pickers, delete confirmations, etc.), and blindly tapping any visible
+# Cancel/OK here could dismiss a real in-progress screen instead of this
+# unrelated system prompt.
+#
+# Run by MaestroRunner._exec() ONLY on the path BEFORE a retry (see
+# maestroRunner.js) — never on the first attempt, so the common/happy path
+# pays zero extra cost. A completely clean screen makes this a fast no-op.
+# =============================================================================
+- runFlow:
+    when:
+      visible: "Enter the password for"
+    commands:
+      - tapOn: "Not Now"
+# Added 2026-08-12: system Face ID prompt (autofill-saved-password biometric
+# check) that can appear on the login password screen and blocks it from
+# ever registering as visible — see ios-ensure-logged-in.yaml's own inline
+# fix for the primary catch; this is the fallback for any other flow/retry
+# where it might linger. Gated on "Face ID" (distinctive, not used anywhere
+# in this app's real UI), same convention as the Apple-ID dialog above.
+- runFlow:
+    when:
+      visible: "Face ID"
+    commands:
+      - tapOn: "Cancel"

@@ -1,0 +1,89 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-create-conversation
+---
+# =============================================================================
+# iOS creates a 1:1 conversation with TARGET_USER — mirror of
+# android-create-conversation.yaml. Selectors verified live on 2026-08-03.
+#
+# Flow: conversation list -> tap "+" (NETS_CreateConversationButton) -> a
+# "New Conversation" vs "SecureMeet" type picker appears -> tap
+# "New Conversation" -> search field + full contact list (a first-run
+# coach-mark overlay with "Skip" may cover it) -> search, tap the matching
+# contact row by its visible text (contact rows have no resource-id) ->
+# Create (NETS_createButtonTapped).
+#
+# Corrected 2026-08-04: earlier believed the search result needed tapping
+# TWICE to select. Root-caused properly this time: the search bar itself
+# still displays the typed query text, so a plain `tapOn: text: TARGET_USER`
+# matches BOTH the search bar (match index 0) and the actual result row
+# (index 1) — Maestro was resolving to the search bar, not the row, which is
+# why nothing got selected (the "double tap worked once" earlier was
+# coincidence, not a real mechanism). Fixed by explicitly targeting index 1.
+# Confirmed live: a coordinate-based tap on the row proved the hypothesis,
+# then `tapOn: {text, index: 1}` selecting correctly confirmed the real fix.
+#
+# Reverted 2026-08-04: briefly added a "reuse an existing conversation with
+# TARGET_USER instead of creating a new one" branch to fight duplicate
+# pile-up from repeated live-debugging runs. Reverted per explicit
+# instruction: android-create-conversation.yaml (the read-only source of
+# truth) always creates a brand new conversation unconditionally on every
+# call — webtoandroid.spec.js calls it fresh in S2, S6, S7, S8, and S9, with
+# no reuse anywhere. iostoweb.spec.js must mirror that exactly: this flow
+# always creates a new conversation, every time it's called, no exceptions.
+# =============================================================================
+# Note 2026-08-09: no launchApp here on purpose — the app is left running
+# by whichever step ran before this one, and relaunching it every single
+# step was confirmed live to force iOS back to its Conversations root
+# screen even with clearState:false (Android preserves state fine, but
+# skipping launchApp here keeps both platforms' flows on the same
+# pattern). The BackButton/tab-bar fallback below still gets us to the
+# right screen regardless of where the previous step left off. If the
+# app were ever genuinely closed/crashed, MaestroRunner's retry path
+# force-relaunches it before retrying (see maestroRunner.js).
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- tapOn:
+    id: "NETS_CreateConversationButton"
+- extendedWaitUntil:
+    visible: "New Conversation"
+    timeout: 10000
+- tapOn:
+    text: "New Conversation"
+# Dismiss the first-run "Add Participants" coach-mark overlay if present
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+- tapOn:
+    text: "Search Name or Invite by Email"
+- inputText: ${TARGET_USER}
+- extendedWaitUntil:
+    visible: ${TARGET_USER}
+    timeout: 15000
+- tapOn:
+    text: ${TARGET_USER}
+    index: 1
+- tapOn:
+    id: "NETS_createButtonTapped"
+- extendedWaitUntil:
+    visible:
+      text: "Type Message Here.."
+    timeout: 15000

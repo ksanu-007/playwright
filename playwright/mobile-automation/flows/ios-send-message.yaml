@@ -1,0 +1,66 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-send-message
+---
+# =============================================================================
+# iOS navigates to a conversation and sends a text message — mirror of
+# android-send-message.yaml. Requires: CONVERSATION_NAME, MESSAGE_TEXT.
+# Selectors verified live on 2026-08-03.
+#
+# IMPORTANT: no hideKeyboard before tapping send — see ios-ensure-logged-in.yaml
+# for why (this driver's hideKeyboard is a tap-based fallback that can mis-hit
+# a nearby element instead of dismissing the keyboard).
+# =============================================================================
+# Note 2026-08-09: no launchApp here on purpose — the app is left running
+# by whichever step ran before this one, and relaunching it every single
+# step was confirmed live to force iOS back to its Conversations root
+# screen even with clearState:false (Android preserves state fine, but
+# skipping launchApp here keeps both platforms' flows on the same
+# pattern). The BackButton/tab-bar fallback below still gets us to the
+# right screen regardless of where the previous step left off. If the
+# app were ever genuinely closed/crashed, MaestroRunner's retry path
+# force-relaunches it before retrying (see maestroRunner.js).
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+# Fixed 2026-08-04: multiple conversations can share the same title (see
+# ios-create-conversation.yaml header — always-fresh creation means
+# duplicates accumulate). index:0 forces the topmost (most recently
+# active) match, confirmed via screenshot to sort newest-first.
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- tapOn:
+    text: "Type Message Here.."
+- inputText: ${MESSAGE_TEXT}
+- tapOn:
+    id: "paperplane.fill"
+- extendedWaitUntil:
+    visible:
+      text: ".*${MESSAGE_TEXT}.*"
+    timeout: 15000

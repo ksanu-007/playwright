@@ -1,0 +1,9 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-create-poll
+---
+# Consolidated: create conversation + create poll in a single Maestro
+# invocation (reduces call count — see ios-send-messages.yaml header note).
+# Requires: TARGET_USER, CONVERSATION_NAME, POLL_QUESTION, OPTION1, OPTION2
+- runFlow: ios-create-conversation.yaml
+- runFlow: ios-create-poll.yaml

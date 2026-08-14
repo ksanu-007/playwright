@@ -1,0 +1,51 @@
+appId: com.infinite.netsfere
+tags:
+  - android-logout
+  - session
+---
+# =============================================================================
+# Android user logs out — mirror of ios-logout.yaml.
+#
+# Verified live 2026-08-06: the top-left circle icon on the conversation list
+# (bounds [0,118][147,265] on a 1080x2400 device, no resource-id, same
+# no-accessibility-id situation ios-logout.yaml's own settings gear has —
+# targeted by point for the same reason) opens a profile/options popup with
+# "Logout" directly on it (id: logout_button) — no need to drill into
+# Settings first, unlike iOS. Tapping it raises a native confirm dialog
+# ("Are you sure you want to logout from NetSfere?") with CANCEL
+# (android:id/button2) / LOGOUT (android:id/button1) — unlike iOS, which logs
+# out immediately with no confirmation. Confirming lands back on the same
+# onboarding carousel ensure-logged-in.yaml's own first step already expects
+# and handles.
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- tapOn:
+    point: "7%,8%"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/logout_button"
+    timeout: 10000
+- tapOn:
+    id: "com.infinite.netsfere:id/logout_button"
+- extendedWaitUntil:
+    visible:
+      id: "android:id/button1"
+      text: "LOGOUT"
+    timeout: 10000
+- tapOn:
+    id: "android:id/button1"
+    text: "LOGOUT"
+- extendedWaitUntil:
+    visible: "Login"
+    timeout: 10000

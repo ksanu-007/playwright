@@ -1,0 +1,83 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-send-attachment
+---
+# =============================================================================
+# iOS sends an image attachment via the Photo Library picker
+# (NETS_ChooseFromLibrary) — companion to ios-send-attachment.yaml, which
+# covers the Files-app/document path. Requires: CONVERSATION_NAME.
+#
+# Verified live on 2026-08-05: add -> NETS_ChooseFromLibrary opens the native
+# Photos picker (outside the app's own accessibility tree, so it has no
+# stable ids). The first thumbnail is targeted by point (Photos assigns no
+# accessibility id), then "Resize" -> a size-tier submenu whose labels vary
+# per-photo ("Small.*|Medium.*|Original.*" regex covers all 3) -> back in the
+# conversation with the photo attached as a compose-bar preview -> the same
+# "paperplane.fill" send button every text message already uses.
+#
+# The size-tier picker is actually titled "Resize & Send", but picking a tier
+# does NOT auto-send — it returns to the conversation with the photo staged
+# as an attachment preview and empty text. In that specific state (attachment
+# staged, no text typed), id "paperplane.fill" is confirmed NOT exposed as
+# visible in the accessibility tree (verified live 2026-08-05: a 20s
+# extendedWaitUntil on it came back WARNED/not-found) even though the same id
+# is reliably visible/tappable whenever text has been typed (every other
+# send flow in this repo only ever taps it after inputText). Rather than
+# guess at a different id blindly, the real device screenshot was pixel-
+# color-sampled to find the send icon's true center: (92.17%, 92.4%) of
+# screen — notably NOT the (92%, 77%) coordinate an earlier attempt tried and
+# failed with (that landed mid-photo, nowhere near the actual button). Point-
+# based tap at the verified coordinate is used instead of an id lookup.
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- tapOn: "add"
+- tapOn: "NETS_ChooseFromLibrary"
+- tapOn:
+    point: "16%,23%"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn: "Resize"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn: "Small.*|Medium.*|Original.*"
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    point: "92%,92%"
+- extendedWaitUntil:
+    visible:
+      text: ".*\\(.*[KM]B\\).*"
+    timeout: 20000

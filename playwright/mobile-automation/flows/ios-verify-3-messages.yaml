@@ -1,0 +1,64 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-verify
+---
+# =============================================================================
+# iOS verifies THREE messages in a specific conversation in a single Maestro
+# session — consolidated variant of ios-verify-message.yaml, extending the
+# same pattern as ios-verify-2-messages.yaml to a third expected text (used
+# by S13's group-messaging scenario, where 3 distinct web users each reply
+# and iOS confirms all 3 replies in one call rather than three separate
+# `maestro test` invocations).
+# Requires: CONVERSATION_NAME, EXPECTED_TEXT_1, EXPECTED_TEXT_2, EXPECTED_TEXT_3.
+# =============================================================================
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- extendedWaitUntil:
+    visible:
+      text: ${EXPECTED_TEXT_1}
+      id: "NETS_ChatMessageContent"
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      text: ${EXPECTED_TEXT_2}
+      id: "NETS_ChatMessageContent"
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      text: ${EXPECTED_TEXT_3}
+      id: "NETS_ChatMessageContent"
+    timeout: 45000
+- tapOn:
+    id: "BackButton"

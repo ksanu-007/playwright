@@ -1,0 +1,140 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-edit-participants
+---
+# =============================================================================
+# iOS edits participants during conversation creation — mirror of
+# android-edit-participants.yaml. Optionally sets a custom GROUP_TITLE, then
+# selects CONVERSATION_NAME + TARGET_USER1 (+ optional TARGET_USER2) via the
+# contact search list, then creates the group conversation.
+# Requires: CONVERSATION_NAME, TARGET_USER1, TARGET_USER2 (optional),
+# GROUP_TITLE (optional)
+#
+# Search/select mechanics verified live on 2026-08-03 (same screen as
+# ios-create-conversation.yaml). Contact rows have no resource-id, just plain
+# text — tap by visible username text.
+#
+# Corrected 2026-08-04: earlier believed each selection needed the matching
+# row tapped TWICE. Root-caused properly this time (see
+# ios-create-conversation.yaml header for the full story): the search bar
+# itself still displays the typed query text, so a plain `tapOn: text: X`
+# matches BOTH the search bar (index 0) and the actual result row (index 1) —
+# Maestro was resolving to the search bar. Fixed by explicitly targeting
+# index 1 instead of tapping twice.
+#
+# Fixed 2026-08-04: the search field is reused for each participant but was
+# never cleared between searches, so consecutive inputText calls concatenated
+# (confirmed live: field showed "netsauto102netsauto100" after searching for
+# two different users in sequence, breaking the second search entirely). Now
+# erases the field before each new search.
+#
+# Corrected 2026-08-04: previously guessed the title-setting screen appeared
+# AFTER tapping Create (a "group-icon/title screen" with a
+# `NETS_doneButtonTapped` id), never verified live. Root-caused properly this
+# time via a standalone device probe: "Tap to change title" is a nav-bar
+# subtitle available immediately on the participant-search screen (before any
+# participants are even added), tapping it opens a real Title screen (its own
+# first-run coach-mark, dismissed via "Skip") whose input field defaults to
+# showing the logged-in user's own name ("netsauto" for this suite's device
+# account) as placeholder text — confirmed live: tapping that placeholder
+# text (index 0, since the participant list below can also contain a
+# matching name), erasing it, and typing the real title works, and its
+# confirm button is plain text "Done" (not the guessed `NETS_doneButtonTapped`
+# id, which does not exist on this screen). Once confirmed, the typed title
+# persists as the screen's main nav-bar title through participant selection
+# and Create. GROUP_TITLE is optional — `when: true: ${GROUP_TITLE}` (proved
+# live to correctly skip when unset, run when set) guards the whole block so
+# omitting it leaves existing callers (e.g. S5) unaffected.
+# =============================================================================
+# Note 2026-08-10: no launchApp here on purpose — see ios-send-message.yaml's
+# header for why (relaunching every step forces iOS back to its
+# Conversations root screen). MaestroRunner force-relaunches on retry only.
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 30000
+- tapOn:
+    id: "NETS_CreateConversationButton"
+- extendedWaitUntil:
+    visible: "New Conversation"
+    timeout: 10000
+- tapOn:
+    text: "New Conversation"
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+- runFlow:
+    when:
+      true: ${GROUP_TITLE}
+    commands:
+      - tapOn: "Tap to change title"
+      - extendedWaitUntil:
+          visible: "Title"
+          timeout: 5000
+      - runFlow:
+          when:
+            visible: "Skip"
+          commands:
+            - tapOn: "Skip"
+      - tapOn:
+          text: "netsauto"
+          index: 0
+      - eraseText: 50
+      - inputText: ${GROUP_TITLE}
+      - tapOn: "Done"
+- tapOn:
+    text: "Search Name or Invite by Email"
+- eraseText: 50
+- inputText: ${CONVERSATION_NAME}
+- extendedWaitUntil:
+    visible: ${CONVERSATION_NAME}
+    timeout: 15000
+- tapOn:
+    text: ${CONVERSATION_NAME}
+    index: 1
+- tapOn:
+    text: "Search Name or Invite by Email"
+- eraseText: 50
+- inputText: ${TARGET_USER1}
+- extendedWaitUntil:
+    visible: ${TARGET_USER1}
+    timeout: 15000
+- tapOn:
+    text: ${TARGET_USER1}
+    index: 1
+- runFlow:
+    when:
+      visible: ${TARGET_USER2}
+    commands:
+      - tapOn:
+          text: "Search Name or Invite by Email"
+      - eraseText: 50
+      - inputText: ${TARGET_USER2}
+      - extendedWaitUntil:
+          visible: ${TARGET_USER2}
+          timeout: 15000
+      - tapOn:
+          text: ${TARGET_USER2}
+          index: 1
+- tapOn:
+    id: "NETS_createButtonTapped"
+- extendedWaitUntil:
+    visible:
+      text: "Type Message Here.."
+    timeout: 15000

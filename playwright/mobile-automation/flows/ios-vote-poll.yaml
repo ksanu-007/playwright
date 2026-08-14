@@ -1,0 +1,45 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-vote-poll
+---
+# =============================================================================
+# iOS votes on a visible poll by tapping a specific option text — mirror of
+# android-vote-poll.yaml. Requires: CONVERSATION_NAME, VOTE_OPTION.
+# =============================================================================
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- extendedWaitUntil:
+    visible:
+      text: ${VOTE_OPTION}
+    timeout: 15000
+- tapOn:
+    text: ${VOTE_OPTION}

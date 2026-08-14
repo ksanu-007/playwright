@@ -1,0 +1,78 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-initiate-video-call
+---
+# =============================================================================
+# iOS initiates a VIDEO call — mirror of android-initiate-video-call.yaml.
+# Requires: CONVERSATION_NAME, PASSWORD
+#
+# VERIFIED live on 2026-08-03: tapping the chat nav bar's "Call" button opens
+# a real menu with "Audio Call", "Video Call", "SecureMeet" options.
+#
+# UNVERIFIED beyond that point — see ios-initiate-group-call.yaml's header
+# note: no live-verified in-call hangup identifier (needs a second party to
+# answer, which solo exploration can't exercise).
+# =============================================================================
+- launchApp:
+    clearState: false
+# End any lingering call from a previous test
+- runFlow:
+    when:
+      visible:
+        id: "call_hangup_button"
+    commands:
+      - tapOn:
+          id: "call_hangup_button"
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+# Fixed 2026-08-04: multiple conversations can share the same title (see
+# ios-create-conversation.yaml header — always-fresh creation means
+# duplicates accumulate). index:0 forces the topmost (most recently
+# active) match, confirmed via screenshot to sort newest-first.
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- tapOn: "Call"
+- extendedWaitUntil:
+    visible: "Video Call"
+    timeout: 10000
+- tapOn: "Video Call"
+- runFlow:
+    when:
+      visible:
+        text: "RING ALL"
+      timeout: 10000
+    commands:
+      - tapOn:
+          text: "RING ALL"
+- extendedWaitUntil:
+    visible:
+      id: "call_hangup_button"
+    timeout: 60000

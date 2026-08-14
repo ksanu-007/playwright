@@ -1,0 +1,66 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - cross-platform
+  - ios-delete-message
+---
+# =============================================================================
+# iOS deletes a specific existing message (long-press -> Delete -> confirm).
+# Requires: CONVERSATION_NAME, TARGET_TEXT.
+#
+# Verified live 2026-08-07: deletion is for-everyone by default — the sender's
+# own bubble becomes "This message was deleted by you.", the recipient's
+# becomes "This message was deleted by sender." (verify the recipient side
+# with ios-verify-any-text.yaml / android-verify-any-text.yaml, EXPECTED_TEXT
+# "deleted by sender"). The context-menu item and the confirmation dialog's
+# button are both labeled "Delete" — the extendedWaitUntil on the dialog's own
+# text between the two taps keeps them from racing each other.
+# =============================================================================
+# Note 2026-08-09: no launchApp here on purpose — the app is left running
+# by whichever step ran before this one, and relaunching it every single
+# step was confirmed live to force iOS back to its Conversations root
+# screen even with clearState:false (Android preserves state fine, but
+# skipping launchApp here keeps both platforms' flows on the same
+# pattern). The BackButton/tab-bar fallback below still gets us to the
+# right screen regardless of where the previous step left off. If the
+# app were ever genuinely closed/crashed, MaestroRunner's retry path
+# force-relaunches it before retrying (see maestroRunner.js).
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- longPressOn:
+    text: ${TARGET_TEXT}
+- tapOn: "Delete"
+- extendedWaitUntil:
+    visible: "Delete Message"
+    timeout: 10000
+- tapOn: "Delete"
+- extendedWaitUntil:
+    visible:
+      text: "This message was deleted by you."
+    timeout: 15000
