@@ -29,7 +29,17 @@ async function main() {
     sheet.columns = [{ width: 22 }, { width: 30 }, { width: 14 }, { width: 90 }, { width: 60 }];
   }
 
-  sheet.addRow([timestamp, groupName, messageCount, summary, actionItems]);
+  const row = sheet.addRow([timestamp, groupName, messageCount, summary, actionItems]);
+  // Summary/Action Items now carry real newlines (bullet/numbered lines) —
+  // wrap text and size the row so Excel actually shows them multi-line
+  // instead of squashing everything onto one visual line.
+  row.getCell(4).alignment = { wrapText: true, vertical: 'top' };
+  row.getCell(5).alignment = { wrapText: true, vertical: 'top' };
+  const lineCount = Math.max(
+    (summary.match(/\n/g) || []).length + 1,
+    (actionItems.match(/\n/g) || []).length + 1
+  );
+  row.height = Math.min(400, Math.max(15, lineCount * 15));
 
   fs.mkdirSync(path.dirname(workbookPath), { recursive: true });
   await workbook.xlsx.writeFile(workbookPath);

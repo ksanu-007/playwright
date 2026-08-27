@@ -892,22 +892,17 @@ test.describe('E2E: Cross-Platform Communication Suite (iOS -> Web)', () => {
   // bottom of Settings) -> single tap, no confirmation dialog, straight
   // back to the onboarding carousel.
   //
-  // maestro.runSync() caches the last-logged-in email (this.__loggedInUser)
-  // and skips re-running a login flow if it already matches — which would
-  // silently no-op the re-login step below, since the wrapper has no way to
-  // know this test just logged the device out from under it. Resetting
-  // that cache directly after logout keeps the wrapper's own assumption
-  // (this.__loggedInUser is currently logged in) consistent with reality,
-  // without changing maestro.js's normal (correct) caching behavior for
-  // every other test.
+  // maestro.logout() runs ios-logout.yaml and clears both the in-memory
+  // (this._loggedInUser) and on-disk (utils/sessionState.js) "who's logged
+  // in" bookkeeping, so the re-login step below's ensureLoggedIn() doesn't
+  // mistake this device for still holding the just-ended session.
   // ===================================================================
   test('S16: iOS user logs out and logs back in', async () => {
     test.setTimeout(180000);
     console.log('\n========== S16: IOS LOGOUT ==========');
 
     await test.step('iOS logs out', async () => {
-      maestro.runSync('ios-logout.yaml');
-      maestro._loggedInUser = null;
+      maestro.logout();
       console.log('  ✓ iOS logged out, onboarding screen visible');
     });
 

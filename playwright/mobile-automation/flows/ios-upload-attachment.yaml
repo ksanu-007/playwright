@@ -1,0 +1,109 @@
+appId: com.infinite.netsfere-ios
+tags:
+  - ios-send-attachment
+  - automation-files
+---
+# =============================================================================
+# iOS sends an attachment provisioned by this framework's own
+# attachmentProvisioning.js, by its exact known filename — the Files-picker
+# counterpart to ios-send-image.yaml (which handles jpg/png/mp4 via the
+# Photos library instead; see attachmentProvisioning.js's module header for
+# why the two file categories need different mechanisms on iOS).
+# Requires: CONVERSATION_NAME, FILE_NAME (exact filename as pre-provisioned
+# in Files — see ATTACHMENT_FILES and the "iOS" section of
+# attachmentProvisioning.js's module header for how/why that provisioning
+# is a one-time, manual, out-of-band step rather than automated here).
+#
+# Otherwise the same "add -> Attach Documents" entry point
+# ios-send-attachment.yaml/ios-send-document.yaml already use, but selects
+# the file deterministically via Search instead of guessing at whatever the
+# native picker defaults to. Verified live end-to-end 2026-08-17 (real
+# iPhone, iOS 26.5.2): once a file has been saved into Files' real
+# "Downloads" location, "Search" -> typing the exact,
+# extension-included filename ("sample.pdf") reliably surfaces exactly one
+# result. Tapping it BY TEXT fails to register — same accessibility gap
+# already documented in ios-send-document.yaml for its own (different)
+# search results — so the result thumbnail is targeted by point instead,
+# same pragmatic approach that flow already established. A single tap both
+# selects it and returns to the conversation with the attachment staged;
+# final send reuses the same (92%, 92%) compose-bar send-icon coordinate
+# every other iOS attachment flow in this repo already uses.
+# =============================================================================
+- runFlow:
+    when:
+      visible:
+        id: "BackButton"
+    commands:
+      - tapOn:
+          id: "BackButton"
+- runFlow:
+    when:
+      visible:
+        id: "NETS_ConversationTab"
+    commands:
+      - tapOn:
+          id: "NETS_ConversationTab"
+- extendedWaitUntil:
+    visible:
+      id: "NETS_CreateConversationButton"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "NETS_ConversationTitle"
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    id: "NETS_ConversationTitle"
+    text: ${CONVERSATION_NAME}
+    index: 0
+- assertVisible:
+    text: "Type Message Here.."
+- tapOn: "add"
+- extendedWaitUntil:
+    visible: "Attach Documents"
+    timeout: 10000
+- tapOn: "Attach Documents"
+- runFlow:
+    when:
+      visible: "Allow Once"
+    commands:
+      - tapOn: "Allow Once"
+- runFlow:
+    when:
+      visible: "Allow While Using App"
+    commands:
+      - tapOn: "Allow While Using App"
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn: "Search"
+- inputText: "${FILE_NAME}"
+# Results filter live as you type — the keyboard's own "search"/return key
+# is a best-effort submit, not required (confirmed live 2026-08-17: it can
+# already be gone by this point once results have narrowed to a single
+# match), so this doesn't hard-fail the flow if it's not there.
+- runFlow:
+    when:
+      visible: "search"
+    commands:
+      - tapOn: "search"
+- waitForAnimationToEnd:
+    timeout: 1500
+- tapOn:
+    point: "18%,42%"
+- extendedWaitUntil:
+    visible:
+      text: "Type Message Here.."
+    timeout: 20000
+- tapOn:
+    point: "92%,92%"
+- extendedWaitUntil:
+    visible:
+      text: ".*\\(.*([Bb]ytes|[KM][Bb])\\).*"
+    timeout: 20000

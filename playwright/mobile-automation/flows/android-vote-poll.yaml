@@ -12,9 +12,16 @@ tags:
 # Note 2026-08-10: no launchApp here on purpose — see ios-send-message.yaml's
 # header for why (relaunching every step forces iOS back to its
 # Conversations root screen). MaestroRunner force-relaunches on retry only.
-- extendedWaitUntil:
-    visible:
+#
+# Fixed 2026-08-18: same missing-scroll pattern found repeatedly elsewhere
+# today — a bare extendedWaitUntil with no scroll assumes VOTE_OPTION is
+# already in the initial viewport, which fails once the conversation has
+# accumulated enough history. Proactive fix mirroring ios-vote-poll.yaml.
+- scrollUntilVisible:
+    element:
       text: ${VOTE_OPTION}
+    direction: DOWN
     timeout: 15000
+    speed: 40
 - tapOn:
     text: ${VOTE_OPTION}

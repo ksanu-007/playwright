@@ -23,12 +23,25 @@ tags:
 #   - "Attach Documents" opens straight to the system Downloads picker
 #     (package com.google.android.documentsui, a different app — Maestro
 #     still drives it fine at the OS UI Automator level, same as this
-#     repo's other cross-package permission-dialog taps). The just-pushed
-#     file appears immediately as the top/most-recent item after the
-#     media-scan broadcast, with no extra navigation needed.
+#     repo's other cross-package permission-dialog taps).
 #   - Selecting it opens a "New attachment" preview with its own dedicated
 #     send_button (not the generic action_done id the Photo/Video and
 #     legacy Document flows use).
+#
+# Fixed 2026-08-18: this flow's file lives in the flat /sdcard/Download/
+# root, but the system picker (com.google.android.documentsui) persists
+# the LAST FOLDER IT WAS LEFT IN, globally, across every app/flow that
+# opens it — not just within this flow. Confirmed live: after
+# android-upload-attachment.yaml (a different flow, used elsewhere in
+# this framework) navigates into its own "AutomationFiles" subfolder,
+# every subsequent "Attach Documents" tap — including this flow's, in a
+# completely unrelated test run — reopens directly inside
+# AutomationFiles instead of the Downloads root, so the target file was
+# never in the folder being searched, no matter how much it scrolled.
+# Explicitly returning to the "Downloads" root via the picker's own nav
+# drawer (content-desc "Show roots") before searching makes this flow
+# correct regardless of whatever folder some other flow left the picker
+# in. Confirmed live: idempotent even when already at Downloads root.
 # =============================================================================
 # Note 2026-08-09: no launchApp here on purpose — the app is left running
 # by whichever step ran before this one, and relaunching it every single
@@ -68,8 +81,19 @@ tags:
     timeout: 10000
 - tapOn: "Attach Documents"
 - extendedWaitUntil:
-    visible: ${FILE_NAME}
+    visible: "Show roots"
+    timeout: 10000
+- tapOn: "Show roots"
+- extendedWaitUntil:
+    visible: "Downloads"
+    timeout: 10000
+- tapOn: "Downloads"
+- scrollUntilVisible:
+    element:
+      text: ${FILE_NAME}
+    direction: DOWN
     timeout: 15000
+    speed: 40
 - tapOn: ${FILE_NAME}
 - extendedWaitUntil:
     visible:

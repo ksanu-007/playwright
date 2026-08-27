@@ -25,6 +25,14 @@ export default class ConversationDetailsPage {
     await this.locators.detailsPanelHeading.waitFor({ state: 'visible', timeout: 10000 });
   }
 
+  /** Returns the numeric Conversation ID shown in the details panel (e.g. "Conversation ID: 180" -> "180"), or null. */
+  async getConversationId() {
+    await this.open();
+    const text = await this.locators.detailsPanelHeading.textContent().catch(() => '');
+    const match = text.match(/Conversation ID:?\s*(\d+)/i);
+    return match ? match[1] : null;
+  }
+
   /** Returns the participant count shown as "<n> People in this conversation". */
   async getParticipantCount() {
     const text = await this.locators.participantCountLabel.textContent({ timeout: 10000 }).catch(() => '');
@@ -69,8 +77,8 @@ export default class ConversationDetailsPage {
       const stillGenerating = await this.locators.summaryGeneratingIndicator.isVisible({ timeout: 500 }).catch(() => false);
       if (!stillGenerating) {
         const text = await this.getSummaryText();
-        if (text && text.replace(/\s+/g, ' ').trim().length > 20) {
-          return text.replace(/\s+/g, ' ').trim();
+        if (text && text.trim().length > 20) {
+          return text.trim();
         }
       }
       await this.page.waitForTimeout(3000);
@@ -78,11 +86,32 @@ export default class ConversationDetailsPage {
     throw new Error(`Summary was not generated within ${timeout}ms`);
   }
 
+  // The app renders this as <b>Summary:</b><ul><li>...</li></ul><b>Action
+  // Items:</b><ol><li>...</li></ol> — a plain innerText() collapses all of
+  // that structure into one run-on paragraph. Walking the direct children
+  // instead reproduces the same bullet ("• ") / numbered ("1. ") layout the
+  // app itself shows, so anything captured outside the app (e.g. logged to
+  // Excel) still reads the way it did on screen.
   async getSummaryText() {
-    if (await this.locators.summaryBubble.isVisible({ timeout: 1000 }).catch(() => false)) {
-      return this.locators.summaryBubble.innerText().catch(() => '');
+    if (!(await this.locators.summaryBubble.isVisible({ timeout: 1000 }).catch(() => false))) {
+      return '';
     }
-    return '';
+    return this.locators.summaryBubble.evaluate((el) => {
+      const lines = [];
+      for (const node of el.childNodes) {
+        if (node.nodeType !== 1) continue; // skip stray whitespace text nodes
+        const tag = node.tagName;
+        if (tag === 'UL') {
+          node.querySelectorAll(':scope > li').forEach((li) => lines.push(`• ${li.textContent.trim()}`));
+        } else if (tag === 'OL') {
+          node.querySelectorAll(':scope > li').forEach((li, i) => lines.push(`${i + 1}. ${li.textContent.trim()}`));
+        } else {
+          const text = node.textContent.trim();
+          if (text) lines.push(text);
+        }
+      }
+      return lines.join('\n');
+    }).catch(() => '');
   }
 
   async isSummaryVisible() {

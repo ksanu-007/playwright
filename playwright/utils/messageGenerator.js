@@ -272,11 +272,15 @@ function render(template, topic, aspect) {
  * Builds one message for a given position in the overall conversation.
  * @param {number} messageIndex - 1-based position of this message in the whole run.
  * @param {number} topicBlockSize - how many consecutive messages stay on one topic.
+ * @param {number} startTopicIndex - which ALL_TOPICS entry the plan opens on
+ *   (0 = Artificial Intelligence, matching the original 1-500 example). Runs
+ *   shorter than a full pass over every topic would otherwise always land on
+ *   whatever topic is first, regardless of message count.
  */
-export function buildMessage(messageIndex, topicBlockSize = 50) {
+export function buildMessage(messageIndex, topicBlockSize = 50, startTopicIndex = 0) {
   const zeroBased = messageIndex - 1;
   const blockIndex = Math.floor(zeroBased / topicBlockSize);
-  const topic = ALL_TOPICS[blockIndex % ALL_TOPICS.length];
+  const topic = ALL_TOPICS[(blockIndex + startTopicIndex) % ALL_TOPICS.length];
   const posInBlock = zeroBased % topicBlockSize;
   const patternKey = PATTERN_ORDER[posInBlock % PATTERN_ORDER.length];
 
@@ -301,11 +305,12 @@ export function buildMessage(messageIndex, topicBlockSize = 50) {
  * Builds the full ordered list of messages for a high-volume conversation run.
  * @param {number} messageCount
  * @param {number} topicBlockSize
+ * @param {number} startTopicIndex
  */
-export function generateConversationPlan(messageCount, topicBlockSize = 50) {
+export function generateConversationPlan(messageCount, topicBlockSize = 50, startTopicIndex = 0) {
   const plan = [];
   for (let i = 1; i <= messageCount; i++) {
-    plan.push(buildMessage(i, topicBlockSize));
+    plan.push(buildMessage(i, topicBlockSize, startTopicIndex));
   }
   return plan;
 }

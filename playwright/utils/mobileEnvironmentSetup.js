@@ -111,27 +111,80 @@ async function ensureIOSBridge() {
 // it automatically. Confirmed live 2026-08-09: building the same Xcode
 // project Maestro already vendors locally, directly into the path it reads
 // from, resolves it.
+//
+// Fixed 2026-08-18: a free Apple Developer account's automatic-signing
+// provisioning profiles expire after about a week — confirmed live when
+// a build that had sat untouched since creation failed every session
+// with "This provisioning profile has expired" (0xe8008011), even though
+// the Products directory still existed and this check let it slide.
+// -allowProvisioningUpdates lets xcodebuild silently mint a fresh profile
+// from the signed-in Apple ID instead of just failing, and a 6-day
+// staleness check (safely inside the ~7-day expiry window) now forces a
+// rebuild before that failure has a chance to happen.
 function ensureIOSDriverBuild() {
   const productsDir = path.join(os.homedir(), '.maestro', 'maestro-iphoneos-driver-build', 'driver-iphoneos', 'Build', 'Products');
-  if (fs.existsSync(productsDir) && fs.readdirSync(productsDir).length > 0) return;
-  console.log('[mobile-setup] iOS driver build missing — building fresh (a few minutes)...');
+  const isStale = () => {
+    const ageMs = Date.now() - fs.statSync(productsDir).mtimeMs;
+    return ageMs > 6 * 24 * 60 * 60 * 1000;
+  };
+  if (fs.existsSync(productsDir) && fs.readdirSync(productsDir).length > 0 && !isStale()) return;
+  console.log('[mobile-setup] iOS driver build missing or stale (>=6 days old, provisioning profile may have expired) — building fresh (a few minutes)...');
   const projectPath = path.join(os.homedir(), '.maestro', 'maestro-ios-xctest-runner', 'maestro-driver-ios.xcodeproj');
   const derivedData = path.join(os.homedir(), '.maestro', 'maestro-iphoneos-driver-build', 'driver-iphoneos');
+  sh(`rm -rf "${derivedData}"`);
   sh(
     `xcodebuild clean build-for-testing -project "${projectPath}" -derivedDataPath "${derivedData}" ` +
-    `-scheme maestro-driver-ios -destination "generic/platform=iOS" DEVELOPMENT_TEAM=${IOS_TEAM_ID}`,
+    `-scheme maestro-driver-ios -destination "generic/platform=iOS" DEVELOPMENT_TEAM=${IOS_TEAM_ID} -allowProvisioningUpdates`,
     480000
   );
 }
 
-// Fix #3c: always replace any existing XCTest session with a fresh one.
-// This is the piece that was observed going silently stale over time (the
-// bridge process stays up, but the on-device HTTP instrumentation server it
-// forwards to stops responding) — there's no cheap, reliable way to check
-// "is the existing session actually healthy" short of a real test
-// invocation, so the safe choice is to always start clean rather than trust
-// a session that may already be dead.
+// Fix #3c: replace the existing XCTest session with a fresh one, UNLESS the
+// current one already responds. This used to unconditionally kill+rebuild
+// every run ("no cheap, reliable way to check if the existing session is
+// healthy") — confirmed live 2026-08-18 that this was actively harmful, not
+// just occasionally wasteful: on a real device, EVERY fresh
+// `xcodebuild test-without-building` invocation re-installs the XCTest
+// runner app, and iOS treats each fresh install as untrusted regardless of
+// whether the identical build was already trusted moments earlier —
+// forcing a manual re-trust (Settings -> General -> VPN & Device
+// Management) on every single `npx playwright test` run. The health check
+// below (a real, bounded-time request to the driver's own HTTP port) is
+// the "short of a real test invocation" this comment used to say didn't
+// exist — skip the kill+rebuild entirely when it already responds.
+// A live session doesn't speak plain HTTP GET on "/" — it resets the
+// connection immediately (curl exit 56), which is actually the healthy
+// signal: confirmed live 2026-08-18, a real response (even a reset) comes
+// back in ~20ms. A genuinely dead port instead either refuses the
+// connection outright (exit 7) or hangs until curl's own timeout (exit 28)
+// — those two are the only cases treated as unhealthy.
+//
+// Fixed 2026-08-18 (same day, later): the curl check alone is not
+// sufficient — confirmed live after a multi-hour idle gap that the
+// BRIDGE process (maestro-ios-device) can still be listening on this
+// port and still return curl exit 56 even after the underlying
+// `xcodebuild test-without-building` process (the actual on-device
+// XCTest session) has died completely, with zero matching processes
+// left. That state passed this check as "healthy" and then failed every
+// real command with "Unable to launch app". Requiring the xcodebuild
+// process to actually be alive closes that gap.
+async function isIOSSessionHealthy() {
+  const xctestRunning = sh(`pgrep -f "xcodebuild test-without-building.*maestro-driver-ios"`).trim();
+  if (!xctestRunning) return false;
+  try {
+    execSync(`curl -s -o /dev/null --max-time 5 http://localhost:${IOS_DRIVER_PORT}/`, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] });
+    return true;
+  } catch (e) {
+    const code = e.status;
+    return code !== 7 && code !== 28;
+  }
+}
+
 async function ensureFreshIOSSession() {
+  if (await isIOSSessionHealthy()) {
+    console.log('[mobile-setup] Existing iOS XCTest session already responds — reusing it.');
+    return;
+  }
   sh('pkill -f "xcodebuild test-without-building.*maestro-driver-ios"');
   const productsDir = path.join(os.homedir(), '.maestro', 'maestro-iphoneos-driver-build', 'driver-iphoneos', 'Build', 'Products');
   const xctestrun = fs.existsSync(productsDir)
@@ -151,6 +204,11 @@ async function ensureFreshIOSSession() {
 }
 
 export default async function globalSetup() {
+  if (process.env.SKIP_MOBILE_SETUP === '1') {
+    console.log('[mobile-setup] Skipped (SKIP_MOBILE_SETUP=1 — web-only invocation).');
+    return;
+  }
+
   extendPath();
 
   const android = androidConnected();

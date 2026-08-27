@@ -1,6 +1,8 @@
 import { exec } from 'child_process';
 import path from 'path';
 import Maestro, { DEFAULT_PASSWORD } from './maestro.js';
+import { getLoggedInUser, setLoggedInUser, clearLoggedInUser } from './sessionState.js';
+import { ATTACHMENT_FILES, pushFileToDevice, verifyFileExistsOnDevice } from './attachmentProvisioning.js';
 
 // =============================================================================
 // MaestroRunner — orchestration layer on top of the existing Maestro class
@@ -11,6 +13,9 @@ import Maestro, { DEFAULT_PASSWORD } from './maestro.js';
 //   - a child_process.exec()-based Promise wrapper around a single flow run
 //   - runIOS(flowName, env) / runAndroid(flowName, env)
 //   - runParallel([...]) — Promise.all over multiple runIOS/runAndroid calls
+//   - ensureLoggedIn(platform, email, password) / logout(platform) — same
+//     wrong-user recovery as Maestro.ensureLoggedIn/logout, sharing its
+//     on-disk session-state bookkeeping (see utils/sessionState.js)
 //   - a best-effort device screenshot helper for Allure attachments
 //
 // Deliberately does NOT auto-trigger Maestro's own ensureLoggedIn()
@@ -18,6 +23,10 @@ import Maestro, { DEFAULT_PASSWORD } from './maestro.js';
 // login explicitly as their own Step 1 (often via runParallel), so silently
 // re-running a login flow underneath would just double-run it (the same
 // redundancy iostoweb.spec.js S16 already documents and avoids by hand).
+// Orchestration specs should call THIS class's own ensureLoggedIn()/logout()
+// below rather than runIOS/runAndroid('*-ensure-logged-in.yaml'/'*-logout.yaml')
+// directly, so a leftover session from a previous/crashed run (or a
+// different spec's user) still gets caught and logged out first.
 // =============================================================================
 class MaestroRunner {
   constructor() {
@@ -122,6 +131,39 @@ class MaestroRunner {
     return this._exec(this.android, flowName, env);
   }
 
+  // Logs a device out via its normal *-logout.yaml flow (idempotent — a
+  // no-op if nothing's logged in) and clears the shared on-disk session
+  // state, so a subsequent ensureLoggedIn() on any Maestro/MaestroRunner
+  // instance correctly sees this device as logged out.
+  async logout(platform) {
+    const maestro = this._instance(platform);
+    const out = await this._exec(maestro, `${platform}-logout.yaml`, {});
+    maestro._loggedInUser = null;
+    clearLoggedInUser(platform);
+    return out;
+  }
+
+  // Orchestration-layer mirror of Maestro.ensureLoggedIn(): checks the
+  // shared on-disk session state (utils/sessionState.js) for who's actually
+  // logged in on this device, logs out first if it's the wrong user (a
+  // leftover session from a previous/crashed run, or a different spec's
+  // user — otherwise indistinguishable from "already logged in as who we
+  // want" to *-ensure-logged-in.yaml, which only checks whether ANY session
+  // is active), then runs the normal ensure-logged-in flow.
+  async ensureLoggedIn(platform, email, password = DEFAULT_PASSWORD) {
+    const maestro = this._instance(platform);
+    const activeUser = getLoggedInUser(platform);
+    if (activeUser && activeUser !== email) {
+      console.log(`  MaestroRunner (${platform}): wrong user logged in (${activeUser}) — logging out before switching to ${email}`);
+      await this.logout(platform);
+    }
+    const flow = platform === 'ios' ? 'ios-ensure-logged-in.yaml' : 'ensure-logged-in.yaml';
+    const out = await this._exec(maestro, flow, { EMAIL: email, PASSWORD: password });
+    maestro._loggedInUser = email;
+    setLoggedInUser(platform, email);
+    return out;
+  }
+
   // Staggers thunk-based tasks by `staggerMs` before kicking off the next
   // one, then awaits all together. Added 2026-08-06 after repeatedly
   // reproducing a real Maestro CLI race live: two `maestro test` processes
@@ -175,6 +217,61 @@ class MaestroRunner {
         }
       });
     });
+  }
+
+  // Provisions fileName onto the given device if it isn't already there.
+  // Android-only — adb push (attachmentProvisioning.js), no Maestro session
+  // needed. iOS attachments are pre-provisioned outside this framework (see
+  // attachmentProvisioning.js's module header for why automating that was
+  // dropped) — this is a no-op for iOS; ios-upload-attachment.yaml's own
+  // Search is what actually confirms the file is there. Exposed separately
+  // from uploadAttachment so prepareAttachmentFiles can provision ahead of
+  // time in a setup hook.
+  async provisionAttachment(platform, fileName) {
+    if (!ATTACHMENT_FILES[fileName]) {
+      throw new Error(`MaestroRunner: unsupported file "${fileName}" — supported: ${Object.keys(ATTACHMENT_FILES).join(', ')}`);
+    }
+    if (platform === 'ios') return;
+    const alreadyOnDevice = await verifyFileExistsOnDevice(platform, fileName).catch(() => false);
+    if (!alreadyOnDevice) {
+      await pushFileToDevice(platform, fileName);
+    }
+  }
+
+  // Uploads a framework-provisioned attachment (see ATTACHMENT_FILES in
+  // utils/attachmentProvisioning.js — call with a canonical name like
+  // "sample.pdf"/"sample.xlsx") into the given conversation, reusing the
+  // existing picker flow for each platform rather than introducing a new
+  // upload mechanism:
+  //   - android: android-upload-attachment.yaml (the exact-filename picker
+  //     flow, pointed at the AutomationFiles subfolder).
+  //   - ios: ios-upload-attachment.yaml (Files-app document picker,
+  //     search-by-exact-filename).
+  // Lazily provisions the file first (see provisionAttachment) — a prior
+  // prepareAttachmentFiles call in a setup hook is what normally makes the
+  // android half of that a no-op by the time a test calls this.
+  async uploadAttachment(platform, conversationName, fileName) {
+    await this.provisionAttachment(platform, fileName);
+
+    if (platform === 'android') {
+      return this._exec(this.android, 'android-upload-attachment.yaml', { CONVERSATION_NAME: conversationName, FILE_NAME: fileName });
+    }
+    return this._exec(this.ios, 'ios-upload-attachment.yaml', { CONVERSATION_NAME: conversationName, FILE_NAME: fileName });
+  }
+
+  // Provisions every supported file for a platform ahead of time (see
+  // provisionAttachment) — meant for a setup hook (this repo's own
+  // globalSetup, mobileEnvironmentSetup.js, already calls this) so
+  // individual tests' uploadAttachment calls don't pay the provisioning
+  // cost inline. No-op for iOS (nothing to provision there — see
+  // provisionAttachment).
+  async prepareAttachmentFiles(platform, fileNames = Object.keys(ATTACHMENT_FILES)) {
+    const results = {};
+    for (const fileName of fileNames) {
+      await this.provisionAttachment(platform, fileName);
+      results[fileName] = 'ready';
+    }
+    return results;
   }
 
   // Best-effort: grabs a screenshot straight from the connected device.

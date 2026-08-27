@@ -5,6 +5,22 @@ tags:
 # =============================================================================
 # Android creates a quick poll in a conversation
 # Requires: CONVERSATION_NAME, POLL_QUESTION, OPTION1, OPTION2
+#
+# Fixed 2026-08-18 (confirmed live via screenshot + UI hierarchy dump; no
+# prior "verified live" date was ever stamped on this file, unlike this
+# repo's other flows — this whole form appears to have never actually been
+# run against the current app build):
+#   - The attach menu's actual current label is "Create Poll", not
+#     "Quick Poll".
+#   - The question field's real id is poll_question_editView, not
+#     poll_question_edittext.
+#   - The answer fields have NO resource-id at all — only a hint ("Answer
+#     1", "Answer 2", ...), matched here the same way this repo's other
+#     hint-only fields are (plain text selector). Only "Answer 1" exists
+#     initially; "Answer 2" only renders once Answer 1 has text, so it
+#     can't be tapped until after OPTION1 is typed.
+#   - Submission is a bottom "CREATE POLL" button
+#     (id: poll_create_button), not a top-bar "Send" label.
 # =============================================================================
 # Note 2026-08-10: no launchApp here on purpose — see ios-send-message.yaml's
 # header for why (relaunching every step forces iOS back to its
@@ -43,23 +59,25 @@ tags:
 - tapOn:
     id: "com.infinite.netsfere:id/insert_attachment_button"
 - extendedWaitUntil:
-    visible: "Quick Poll"
+    visible: "Create Poll"
     timeout: 15000
-- tapOn: "Quick Poll"
+- tapOn: "Create Poll"
 - extendedWaitUntil:
     visible:
-      id: "com.infinite.netsfere:id/poll_question_edittext"
+      id: "com.infinite.netsfere:id/poll_question_editView"
     timeout: 15000
 - tapOn:
-    id: "com.infinite.netsfere:id/poll_question_edittext"
+    id: "com.infinite.netsfere:id/poll_question_editView"
 - inputText: ${POLL_QUESTION}
-- tapOn:
-    id: "com.infinite.netsfere:id/option_one_edittext"
+- tapOn: "Answer 1"
 - inputText: ${OPTION1}
-- tapOn:
-    id: "com.infinite.netsfere:id/option_two_edittext"
+- extendedWaitUntil:
+    visible: "Answer 2"
+    timeout: 5000
+- tapOn: "Answer 2"
 - inputText: ${OPTION2}
-- tapOn: "Send"
+- tapOn:
+    id: "com.infinite.netsfere:id/poll_create_button"
 - extendedWaitUntil:
     visible:
       text: ".*${POLL_QUESTION}.*"

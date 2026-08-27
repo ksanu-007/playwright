@@ -5,6 +5,13 @@ tags:
 # =============================================================================
 # iOS votes on a visible poll by tapping a specific option text — mirror of
 # android-vote-poll.yaml. Requires: CONVERSATION_NAME, VOTE_OPTION.
+#
+# Fixed 2026-08-18: same missing-scroll pattern found repeatedly elsewhere
+# today (attachment pickers, poll creation) — a bare extendedWaitUntil with
+# no scroll assumes VOTE_OPTION is already in the initial viewport, which
+# fails once the conversation has accumulated enough history (confirmed
+# live: the poll was scrolled well below the visible area under a full
+# concurrent 3-platform run's message volume).
 # =============================================================================
 - runFlow:
     when:
@@ -37,9 +44,11 @@ tags:
     index: 0
 - assertVisible:
     text: "Type Message Here.."
-- extendedWaitUntil:
-    visible:
+- scrollUntilVisible:
+    element:
       text: ${VOTE_OPTION}
+    direction: DOWN
     timeout: 15000
+    speed: 40
 - tapOn:
     text: ${VOTE_OPTION}

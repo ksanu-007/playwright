@@ -1,5 +1,6 @@
 import { execSync, spawn } from 'child_process';
 import path from 'path';
+import { getLoggedInUser, setLoggedInUser, clearLoggedInUser } from './sessionState.js';
 
 // Windows dev machines resolve the Maestro CLI via %LOCALAPPDATA%; macOS/Linux
 // installs (including iOS, which only runs on macOS) put `maestro` on PATH.
@@ -94,12 +95,40 @@ class Maestro {
     }
   }
 
+  // Logs the device out (idempotent — the underlying *-logout.yaml flows are
+  // already no-ops when nothing's logged in) and clears both the in-memory
+  // and on-disk "who's logged in" bookkeeping so the next ensureLoggedIn()
+  // doesn't mistake this device for still holding a session.
+  logout() {
+    const flow = this.platform === 'ios' ? 'ios-logout.yaml' : 'android-logout.yaml';
+    try {
+      this._runSync(this._flowPath(flow), {});
+    } catch (e) {
+      console.log(`  Maestro (${this.platform}): logout failed (continuing) — ${(e.message || '').slice(0, 150)}`);
+    }
+    this._loggedInUser = null;
+    clearLoggedInUser(this.platform);
+  }
+
   ensureLoggedIn(email) {
-    if (this._loggedInUser !== email) {
+    // this._loggedInUser only reflects what THIS process has done — a
+    // session left over from a previous/crashed run, or from a different
+    // spec file's user, is invisible to it. The on-disk state (checked here
+    // via getLoggedInUser) survives across processes, so it's the only
+    // reliable signal that some OTHER user is already active on the device
+    // and needs logging out before we trust ensure-logged-in.yaml's own
+    // "is anyone logged in at all" check.
+    const activeUser = getLoggedInUser(this.platform);
+    if (activeUser && activeUser !== email) {
+      console.log(`  Maestro (${this.platform}): wrong user logged in (${activeUser}) — logging out before switching to ${email}`);
+      this.logout();
+    }
+    if (this._loggedInUser !== email || activeUser !== email) {
       const flow = this.platform === 'ios' ? 'ios-ensure-logged-in.yaml' : 'ensure-logged-in.yaml';
       console.log(`  Maestro (${this.platform}): login as ${email}`);
       this._runSync(this._flowPath(flow), { EMAIL: email, PASSWORD: DEFAULT_PASSWORD });
       this._loggedInUser = email;
+      setLoggedInUser(this.platform, email);
     }
   }
 

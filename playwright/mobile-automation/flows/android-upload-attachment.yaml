@@ -1,0 +1,74 @@
+appId: com.infinite.netsfere
+tags:
+  - android-send-attachment
+  - automation-files
+---
+# =============================================================================
+# Android sends an attachment provisioned by this framework's own
+# attachmentProvisioning.js (utils/attachmentProvisioning.js) — pushed to
+# /sdcard/Download/AutomationFiles/ (its own subfolder, separate from the
+# flat /sdcard/Download/ the older android-send-group-attachment.yaml
+# expects, so that flow's existing callers are completely unaffected).
+# Requires: CONVERSATION_NAME, FILE_NAME (exact filename as provisioned,
+# e.g. "sample.pdf" — see ATTACHMENT_FILES in attachmentProvisioning.js).
+#
+# Otherwise an exact copy of android-send-group-attachment.yaml's own
+# already-verified-live interaction sequence (same "Attach Documents" menu
+# entry, same New-attachment-preview send_button) — the only addition is
+# one extra tap into the AutomationFiles folder, since the system Downloads
+# picker (com.google.android.documentsui) always lands on the Downloads
+# root first. Verified live 2026-08-17: the picker's Downloads root shows
+# an "AutomationFiles" folder tile (tapOn by its plain visible text, same
+# convention this repo already uses for filenames/labels elsewhere);
+# opening it lists the provisioned files by their exact pushed names.
+# =============================================================================
+- runFlow:
+    when:
+      visible:
+        id: "com.infinite.netsfere:id/send_message_edittext"
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/new_conversation_fab"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: ${CONVERSATION_NAME}
+    direction: DOWN
+    timeout: 30000
+    speed: 40
+- tapOn:
+    text: ${CONVERSATION_NAME}
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/send_message_edittext"
+    timeout: 15000
+- tapOn:
+    id: "com.infinite.netsfere:id/insert_attachment_button"
+- extendedWaitUntil:
+    visible: "Attach Documents"
+    timeout: 10000
+- tapOn: "Attach Documents"
+- extendedWaitUntil:
+    visible: "AutomationFiles"
+    timeout: 15000
+- tapOn: "AutomationFiles"
+- scrollUntilVisible:
+    element:
+      text: ${FILE_NAME}
+    direction: DOWN
+    timeout: 15000
+    speed: 40
+- tapOn: ${FILE_NAME}
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/send_button"
+    timeout: 15000
+- tapOn:
+    id: "com.infinite.netsfere:id/send_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.infinite.netsfere:id/send_message_edittext"
+    timeout: 15000
+- back

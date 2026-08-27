@@ -18,6 +18,20 @@ tags:
 # string. index:0 forces the topmost/most-recent match for duplicate-titled
 # conversations, same convention as every other flow here. Forwarded message
 # renders with a "Forwarded..." label above the text.
+#
+# Fixed 2026-08-18, corrected same day: initially misread as a wrong-
+# message/scroll problem (added scrollUntilVisible before the long-press)
+# — that did NOT fix it; the real cause is a timing race. This flow
+# re-navigates out to the conversation list and back in every time (see
+# the BackButton step below), right after the spec sends TARGET_TEXT as
+# a brand new message with no pause in between. Confirmed live: long-
+# pressing that same message again a couple minutes later (after it had
+# time to settle/re-sync) shows the full Info/Copy/Reply/Forward/Export/
+# Delete menu — but long-pressing it immediately after the re-navigation
+# renders a reduced Info/Reply/Export-only menu with no Forward, which is
+# what actually threw. The scrollUntilVisible from the earlier (wrong)
+# fix is harmless and left in place; the real fix is the explicit settle
+# wait below, right before the long-press.
 # =============================================================================
 # Note 2026-08-09: no launchApp here on purpose — the app is left running
 # by whichever step ran before this one, and relaunching it every single
@@ -57,6 +71,14 @@ tags:
     id: "NETS_ConversationTitle"
     text: ${CONVERSATION_NAME}
     index: 0
+- scrollUntilVisible:
+    element:
+      text: ${TARGET_TEXT}
+    direction: DOWN
+    timeout: 15000
+    speed: 40
+- waitForAnimationToEnd:
+    timeout: 3000
 - longPressOn:
     text: ${TARGET_TEXT}
 - tapOn: "Forward"

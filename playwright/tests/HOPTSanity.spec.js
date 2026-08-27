@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import ConversationHelper from '../pages/conversation.js';
+import ConversationDetailsPage from '../pages/conversationDetails.js';
 import Weblogin from '../pages/weblogin.js';
 import testData from '../utils/testData.json';
 import path from 'path';
@@ -204,16 +205,52 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
       const pageP = pages.primary;
 
       await convP.openConversationByText(GROUP_NAME, 10000);
-      await convP.startAudioCall();
-      const callConnected = await convP.waitForCallConnected(60000);
+
+      // Fixed 2026-08-20: previously only primary placed the call and nobody
+      // else ever joined it, so it stayed on "Connecting..." forever — masked
+      // by waitForCallConnected() wrongly reporting "connected" as soon as the
+      // End-call button rendered (which happens immediately for an outgoing/
+      // ringing call). Now that check waits for the real elapsed-time signal,
+      // so the other group members need to actually join for the call to
+      // reach that state, same Promise.all-per-user pattern used elsewhere in
+      // this test.
+      const [, callConnected] = await Promise.all([
+        Promise.all(['user1', 'user2', 'user3'].map(async (key) => {
+          const conv = conversations[key];
+          await conv.dismissFeatureModal();
+          await conv.openConversationByText(GROUP_NAME, 20000);
+          await conv.acceptIncomingCall(60000);
+        })),
+        (async () => {
+          await convP.startAudioCall();
+          return convP.waitForCallConnected(60000);
+        })(),
+      ]);
       expect(callConnected).toBeTruthy();
 
       await convP.startScreenShare();
+      const sharingActive = await convP.isScreenSharingActive();
+      expect(sharingActive).toBeTruthy();
       await pageP.waitForTimeout(800);
       await convP.stopScreenShare();
 
       await convP.endCall();
       await pageP.waitForTimeout(2000);
+    });
+
+    // =========================================================================
+    // STEP 14: Capture the group's Conversation ID (consumed downstream by
+    // vaultDashboard.spec.js to scope a vault report to this exact run)
+    // =========================================================================
+    await test.step('Step 14 - Capture conversation ID', async () => {
+      const convP = conversations.primary;
+      const pageP = pages.primary;
+      const details = new ConversationDetailsPage(pageP);
+
+      await convP.openConversationByText(GROUP_NAME, 10000);
+      const conversationId = await details.getConversationId();
+      expect(conversationId).toBeTruthy();
+      console.log(`CONVERSATION_ID:${conversationId}`);
     });
   });
 });

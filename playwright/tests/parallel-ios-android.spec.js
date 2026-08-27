@@ -33,23 +33,21 @@ import testData from '../utils/testData.json';
 // forward_item plus an overflow for Delete). Deletion is for-everyone by
 // default on both platforms.
 //
-// Attachment determinism: per this framework's convention (see
-// parallel-ios-android-web.spec.js Step 9), attachments sent from Android
-// are pushed straight from this project's own test-files/ directory via
+// Attachment determinism: attachments sent from Android are pushed straight
+// from this project's own test-files/ directory via
 // MaestroRunner.pushFileToAndroid() + android-send-group-attachment.yaml
 // (that flow has no group-specific logic despite its name — it navigates by
 // CONVERSATION_NAME like any other flow here, so it works unchanged for a
 // 1:1 thread), so the exact file sent is always known and verified by name.
 //
-// iOS has no equivalent push mechanism in this repo (no adb-push analogue
-// for real iOS devices) — ios-send-attachment.yaml is the only available
-// flow, and it depends on whatever file the native Files/iCloud "Browse"
-// picker shows first on the connected device (documented as a known gap in
-// that flow's own header). Because the exact filename isn't controllable
-// from here, Android's verification of the iOS-sent attachment falls back
-// to the same generic size-caption pattern (".*(NN KB|MB).*") that
-// ios-send-attachment.yaml itself already asserts on the iOS side —
-// treat this direction as a delivery check, not an exact-filename check.
+// iOS attachments go through MaestroRunner.uploadAttachment (see
+// utils/attachmentProvisioning.js/maestroRunner.js) instead of the older
+// ios-send-attachment.yaml — that flow depended on whatever file the native
+// Files/iCloud "Browse" picker happened to show first, which broke outright
+// once Files/Safari/Photos got reinstalled on the test device (2026-08-17)
+// and changed what "first" meant. uploadAttachment instead selects a known,
+// framework-provisioned file (sample.xlsx) by exact name, so both
+// directions now verify by exact filename, not a generic size caption.
 //
 // Requested assertions, and how each maps to a real, verifiable check here:
 //   - Conversation exists     -> ios-create-conversation.yaml's own
@@ -67,9 +65,7 @@ import testData from '../utils/testData.json';
 //   - Location delivered      -> "My Location" caption visible on the
 //                                receiving side (*-verify-any-text.yaml)
 //   - Attachment delivered    -> exact filename visible on the receiving
-//                                side for the Android->iOS direction;
-//                                generic size-caption pattern for the
-//                                iOS->Android direction (see note above)
+//                                side, both directions
 //   - Timestamp exists        -> BEST-EFFORT / unverified, same HH:MM-regex
 //                                convention used throughout this suite
 // =============================================================================
@@ -97,8 +93,8 @@ test.describe('Orchestration: Parallel iOS <> Android 1:1 Conversation', () => {
 
     await test.step('Step 1: Login iOS and Android simultaneously', async () => {
       const [iosOut, androidOut] = await runner.runParallel([
-        () => runner.runIOS('ios-ensure-logged-in.yaml', { EMAIL: iosUser.email, PASSWORD: iosUser.password }),
-        () => runner.runAndroid('ensure-logged-in.yaml', { EMAIL: androidUser.email, PASSWORD: androidUser.password }),
+        () => runner.ensureLoggedIn('ios', iosUser.email, iosUser.password),
+        () => runner.ensureLoggedIn('android', androidUser.email, androidUser.password),
       ]);
       await logAndAttach(testInfo, 'iOS login output', iosOut);
       await logAndAttach(testInfo, 'Android login output', androidOut);
@@ -178,21 +174,22 @@ test.describe('Orchestration: Parallel iOS <> Android 1:1 Conversation', () => {
       console.log('  ✓ iOS received the Android location');
     });
 
-    await test.step('Step 7: iOS sends an attachment (native picker), Android verifies delivery', async () => {
-      // No framework-controlled file source exists for real iOS devices in
-      // this repo (see header note) — the exact filename picked by the
-      // native "Browse" tab isn't known ahead of time, so verification uses
-      // the same generic size-caption pattern ios-send-attachment.yaml
-      // already asserts locally, rather than an exact filename match.
-      const out = await runner.runIOS('ios-send-attachment.yaml', { CONVERSATION_NAME: androidUser.username });
+    await test.step('Step 7: iOS sends a framework-provisioned attachment, Android verifies by exact name', async () => {
+      // uploadAttachment selects sample.xlsx by exact name via Search in
+      // Netsfere's own Files-app picker (see utils/maestroRunner.js /
+      // utils/attachmentProvisioning.js) — replaces the old
+      // ios-send-attachment.yaml, which depended on whatever file the
+      // native "Browse" tab happened to show first and broke outright once
+      // Files/Safari/Photos got reinstalled on this device (2026-08-17).
+      const out = await runner.uploadAttachment('ios', androidUser.username, 'sample.xlsx');
       await logAndAttach(testInfo, 'iOS send attachment output', out);
 
       const androidOut = await runner.runAndroid('android-verify-any-text.yaml', {
         CONVERSATION_NAME: iosUser.username,
-        EXPECTED_TEXT: '\\(.*[KM]B\\)',
+        EXPECTED_TEXT: 'sample.xlsx',
       });
       await logAndAttach(testInfo, 'Android verify attachment output', androidOut);
-      console.log('  ✓ Android received the iOS attachment');
+      console.log('  ✓ Android received the iOS attachment: "sample.xlsx"');
     });
 
     await test.step(`Step 8: Android sends attachment "${oneToOneAttachmentFileName}" (framework test-files), iOS verifies`, async () => {
@@ -309,8 +306,8 @@ test.describe('Orchestration: Parallel iOS <> Android 1:1 Conversation', () => {
 
     await test.step('Step 13: Logout iOS and Android clients', async () => {
       const [iosOut, androidOut] = await runner.runParallel([
-        () => runner.runIOS('ios-logout.yaml'),
-        () => runner.runAndroid('android-logout.yaml'),
+        () => runner.logout('ios'),
+        () => runner.logout('android'),
       ]);
       await logAndAttach(testInfo, 'iOS logout output', iosOut);
       await logAndAttach(testInfo, 'Android logout output', androidOut);

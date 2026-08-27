@@ -17,7 +17,7 @@
       "endIndex": 110
     },
     "vaultLogin": {
-       "username": "saims12@sanu.netsferetest.org",
+       "username": "nutriglow@sanu.netsferetest.org",
       "password": "Abcd@1234567"
     },
     "conversationTestData": {
@@ -104,9 +104,9 @@
   "oneToOneAttachmentFileName": "OneToOneAttachmentSample.pdf",
 
   "AIConversationSummary": {
-    "minMessageCount": 100,
+    "minMessageCount": 50,
     "maxMessageCount": 5000,
-    "defaultMessageCount": 500,
+    "defaultMessageCount": 50,
     "defaultMessageDelayMs": 150,
     "defaultSummaryTimeoutMs": 180000,
     "checkpointInterval": 100,

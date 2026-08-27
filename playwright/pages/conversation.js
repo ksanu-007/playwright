@@ -33,8 +33,8 @@ export default class ConversationHelper {
   }
 
   async dismissFeatureModal() {
-    await this.common.click(this.webLoc.featureXButton).catch(() => {});
-    await this.page.locator('button:has-text("Close"), .close, [class*="close"]').first().click({ timeout: 2000 }).catch(() => {});
+    await this.common.click(this.webLoc.featureXButton, { timeout: 3000 }).catch(() => {});
+    await this.page.locator('button:has-text("Close"), .close, [class*="close"]').first().click({ timeout: 1500 }).catch(() => {});
   }
 
   async startConversation(targetUser) {
@@ -307,6 +307,18 @@ export default class ConversationHelper {
     await btn.evaluate(el => el.click());
     await this.page.waitForTimeout(1000);
     await this._dismissOverlay();
+
+    // Fixed 2026-08-20: on a group conversation, "Make Call" only opens a
+    // "Select Ring Participants" screen — confirmed live via failure
+    // screenshot that the call never actually rang because this second,
+    // separate "Place call" button was never clicked, leaving the call
+    // stuck on that screen indefinitely. 1:1 conversations ring directly, so
+    // this button never appears there and the check is skipped.
+    const placeCallBtn = this.page.locator('button[title="Place call"]').first();
+    if (await placeCallBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await placeCallBtn.click({ force: true });
+      await this.page.waitForTimeout(1000);
+    }
   }
 
   async startScreenShare() {
@@ -319,12 +331,28 @@ export default class ConversationHelper {
     }
   }
 
-  async isScreenSharingActive() {
-    return await this.page.locator('[class*="screen-share"], [class*="sharing"], button[title*="Stop Sharing"]').first().isVisible({ timeout: 5000 }).catch(() => false);
+  // Fixed 2026-08-20: confirmed live that clicking Share Screen genuinely
+  // starts sharing (a real screenShare websocket connects and media flows),
+  // but the toggled button's title becomes "Stop Screen Share", not "Stop
+  // Sharing" — so this never matched and reported sharing as inactive even
+  // when it had actually started. Also switched to a real polling loop:
+  // Locator.isVisible()'s `timeout` option does not retry, it's a single
+  // immediate check, and establishing the screen-share media session
+  // (its own websocket handshake) takes a few seconds — the old single
+  // check ran before that ever finished.
+  async isScreenSharingActive(timeout = 15000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      if (await this.page.locator('button:has-text("Stop Sharing"), button[title*="Stop Screen Share"]').first().isVisible().catch(() => false)) {
+        return true;
+      }
+      await this.page.waitForTimeout(500);
+    }
+    return false;
   }
 
   async stopScreenShare() {
-    const btn = this.page.locator('button[title*="Stop Sharing"], button:has-text("Stop Sharing")').first();
+    const btn = this.page.locator('button:has-text("Stop Sharing"), button[title*="Stop Screen Share"]').first();
     if (await btn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await btn.click({ force: true });
       await this.page.waitForTimeout(500);
@@ -353,10 +381,18 @@ export default class ConversationHelper {
     await this.page.waitForTimeout(800);
   }
 
+  // Fixed 2026-08-20: confirmed live that the incoming-call Accept/Decline
+  // controls are icon-only buttons carrying a `title` attribute with no
+  // visible text content — the has-text() selectors below never matched
+  // them, so this always timed out and returned false even while a real
+  // "Accept"-titled button was on screen.
   async acceptIncomingCall(timeout = 60000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
       for (const sel of [
+        'button[title="Answer"]',
+        'button[title="Accept"]',
+        'button[title="Join"]',
         'button:has-text("Answer")',
         'button:has-text("Accept")',
         'button:has-text("Join")',
@@ -376,11 +412,20 @@ export default class ConversationHelper {
     return false;
   }
 
+  // Fixed 2026-08-20: was checking only for the "End call" button, which
+  // renders immediately for an outgoing/ringing call — confirmed live that
+  // this reports "connected" while the call header still reads
+  // "Connecting..." and the Share Screen control isn't in the DOM yet,
+  // causing startScreenShare() to time out looking for a button that
+  // hadn't been mounted. #elapsedTimeDisplay holds "Connecting..." while
+  // ringing and switches to a real mm:ss once the call is actually
+  // connected — waiting on that instead gives startScreenShare() a call
+  // that's genuinely live.
   async waitForCallConnected(timeout = 30000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
-      const endBtn = this.page.getByRole('button', { name: /End/i }).first();
-      if (await endBtn.isVisible({ timeout: 500 }).catch(() => false)) return true;
+      const timerText = (await this.page.locator('#elapsedTimeDisplay').first().textContent().catch(() => '')).trim();
+      if (/^\d{1,2}:\d{2}$/.test(timerText)) return true;
       await this.page.waitForTimeout(500);
     }
     return false;
@@ -467,11 +512,22 @@ export default class ConversationHelper {
     await this.page.waitForTimeout(500);
   }
 
+  // Fixed 2026-08-20: confirmed live that the poll card only renders its
+  // option text once expanded — collapsed, it shows just the question and
+  // "Click or tap to vote" — so this always failed on a real, just-created
+  // poll because the option text genuinely wasn't in the DOM yet. votePoll()
+  // already expands the card the same way before looking for option text.
   async verifyPollResult(question, expectedOption, timeout = 10000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
       const body = await this.page.locator('body').textContent().catch(() => '');
       if (body.includes(expectedOption) && body.includes(question)) return true;
+      if (body.includes(question)) {
+        const pollEl = this.page.locator('text=Active Poll').locator('..').first();
+        if (await pollEl.isVisible({ timeout: 500 }).catch(() => false)) {
+          await pollEl.click({ force: true }).catch(() => {});
+        }
+      }
       await this.page.waitForTimeout(500);
     }
     return false;
@@ -509,10 +565,9 @@ export default class ConversationHelper {
   }
 
   async openConversationByText(text, timeout = 15000) {
+    await this.dismissFeatureModal();
     const start = Date.now();
     while (Date.now() - start < timeout) {
-      await this.dismissFeatureModal();
-
       const convoLink = this.page.locator('text=Conversations').first();
       if (await convoLink.isVisible({ timeout: 500 }).catch(() => false)) {
         await convoLink.click({ force: true });

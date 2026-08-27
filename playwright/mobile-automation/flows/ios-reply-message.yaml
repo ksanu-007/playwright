@@ -14,6 +14,15 @@ tags:
 # (typing without an explicit tap first goes nowhere) — same gap already
 # documented for the attachment flows' compose bar. Sent reply renders as one
 # bubble containing the quoted preview + REPLY_TEXT.
+#
+# Fixed 2026-08-18: ios-forward-message.yaml and ios-delete-message.yaml
+# both hit the same timing race — long-pressing a message too soon after
+# it's sent/navigated-to renders a reduced Info/Reply/Export-only context
+# menu under a full concurrent 3-platform run's load (Reply itself always
+# happened to be in that reduced menu, which is likely why this flow never
+# visibly failed — but Copy/Forward/Delete being absent in that same state
+# means the underlying race is present here too). Same settle-wait applied
+# proactively.
 # =============================================================================
 # Note 2026-08-09: no launchApp here on purpose — the app is left running
 # by whichever step ran before this one, and relaunching it every single
@@ -53,6 +62,8 @@ tags:
     id: "NETS_ConversationTitle"
     text: ${CONVERSATION_NAME}
     index: 0
+- waitForAnimationToEnd:
+    timeout: 3000
 - longPressOn:
     text: ${TARGET_TEXT}
 - tapOn: "Reply"
