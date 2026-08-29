@@ -128,9 +128,37 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
     });
 
     // =========================================================================
-    // STEP 6: Send attachments
+    // STEP 6: Inline reply — reply directly to the just-sent message so the
+    // quote preview has a deterministic target (replyToMessage() always acts
+    // on the most recent message, not one matched by content).
     // =========================================================================
-    await test.step('Step 6 - Send attachments', async () => {
+    await test.step('Step 6 - Inline reply to a message', async () => {
+      const convP = conversations.primary;
+      const pageP = pages.primary;
+
+      await convP.openConversationByText(GROUP_NAME, 10000);
+      await convP.sendMessage('ReplyTargetMessage');
+      await pageP.waitForTimeout(800);
+      await convP.replyToMessage('This is an inline reply');
+      await pageP.waitForTimeout(800);
+
+      const body = await pageP.locator('body').textContent().catch(() => '');
+      expect(body).toContain('ReplyTargetMessage');
+      expect(body).toContain('This is an inline reply');
+
+      await Promise.all(['user1', 'user2', 'user3'].map(async (key) => {
+        const conv = conversations[key];
+        await conv.dismissFeatureModal();
+        await conv.openConversationByText(GROUP_NAME, 20000);
+        const found = await conv.isConversationTextVisible('This is an inline reply', 20000);
+        expect(found).toBeTruthy();
+      }));
+    });
+
+    // =========================================================================
+    // STEP 7: Send attachments
+    // =========================================================================
+    await test.step('Step 7 - Send attachments', async () => {
       const convP = conversations.primary;
       await convP.openConversationByText(GROUP_NAME, 10000);
 
@@ -148,9 +176,78 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
     });
 
     // =========================================================================
-    // STEP 7: Share location
+    // STEP 8: Forward message — forward a freshly-sent message (again, the
+    // deterministic "most recent message" target) to a 1:1 with user1, then
+    // have user1 verify it landed in that separate conversation.
     // =========================================================================
-    await test.step('Step 7 - Share location', async () => {
+    await test.step('Step 8 - Forward message', async () => {
+      const convP = conversations.primary;
+      const pageP = pages.primary;
+
+      await convP.openConversationByText(GROUP_NAME, 10000);
+      await convP.sendMessage('ForwardTestMessage');
+      await pageP.waitForTimeout(800);
+      await convP.forwardMessage(USERS.user1.displayName);
+      await pageP.waitForTimeout(800);
+
+      const conv1 = conversations.user1;
+      await conv1.dismissFeatureModal();
+      const opened = await conv1.openConversationByUser(USERS.primary.displayName);
+      expect(opened).toBeTruthy();
+      const found = await conv1.isConversationTextVisible('ForwardTestMessage', 20000);
+      expect(found).toBeTruthy();
+    });
+
+    // =========================================================================
+    // STEP 9: Message reactions — user2 reacts to a freshly-sent message;
+    // primary verifies the reaction is visible.
+    // =========================================================================
+    await test.step('Step 9 - React to a message', async () => {
+      const convP = conversations.primary;
+      const pageP = pages.primary;
+
+      await convP.openConversationByText(GROUP_NAME, 10000);
+      await convP.sendMessage('ReactionTestMessage');
+      await pageP.waitForTimeout(800);
+
+      const conv2 = conversations.user2;
+      await conv2.dismissFeatureModal();
+      await conv2.openConversationByText(GROUP_NAME, 20000);
+      await conv2.reactToMessage('ReactionTestMessage', '+1');
+
+      await convP.openConversationByText(GROUP_NAME, 10000);
+      const reacted = await convP.bodyContains('reacted', 15000);
+      expect(reacted).toBeTruthy();
+    });
+
+    // =========================================================================
+    // STEP 10: Delete message — primary sends a throwaway message, deletes
+    // it, and confirms it disappears both locally and for another user.
+    // =========================================================================
+    await test.step('Step 10 - Delete a message', async () => {
+      const convP = conversations.primary;
+      const pageP = pages.primary;
+      const deleteText = `DeleteMeTest-${Date.now()}`;
+
+      await convP.openConversationByText(GROUP_NAME, 10000);
+      await convP.sendMessage(deleteText);
+      await pageP.waitForTimeout(800);
+      await convP.deleteMessage(deleteText);
+
+      const goneForPrimary = await convP.verifyMessageGone(deleteText, 20000);
+      expect(goneForPrimary).toBeTruthy();
+
+      const conv1 = conversations.user1;
+      await conv1.dismissFeatureModal();
+      await conv1.openConversationByText(GROUP_NAME, 20000);
+      const goneForUser1 = await conv1.verifyMessageGone(deleteText, 20000);
+      expect(goneForUser1).toBeTruthy();
+    });
+
+    // =========================================================================
+    // STEP 11: Share location
+    // =========================================================================
+    await test.step('Step 11 - Share location', async () => {
       const convP = conversations.primary;
       await convP.openConversationByText(GROUP_NAME, 10000);
       await convP.shareLocation();
@@ -167,9 +264,9 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
     });
 
     // =========================================================================
-    // STEPS 8-9: Create poll and vote
+    // STEPS 12-13: Create poll and vote
     // =========================================================================
-    await test.step('Steps 8-9 - Poll and votes', async () => {
+    await test.step('Steps 12-13 - Poll and votes', async () => {
       const convP = conversations.primary;
       const POLL_Q = 'Is HOPT working correctly?';
       const votes = { user1: 'Yes', user2: 'No', user3: 'Yes' };
@@ -198,9 +295,11 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
     });
 
     // =========================================================================
-    // STEPS 10-13: Audio call, screen share, end call
+    // STEPS 14-17: Audio call, screen share, end call — the call must last
+    // at least 20 seconds once all participants have joined (not just once
+    // primary sees "connected") before it's ended.
     // =========================================================================
-    await test.step('Steps 10-13 - Audio call, screen share, end call', async () => {
+    await test.step('Steps 14-17 - Audio call, screen share, end call', async () => {
       const convP = conversations.primary;
       const pageP = pages.primary;
 
@@ -234,15 +333,21 @@ test.describe('HOPT Sanity - End-to-End Messaging Flow', () => {
       await pageP.waitForTimeout(800);
       await convP.stopScreenShare();
 
+      // waitForCallConnected already confirmed all participants joined
+      // above — this measures from that same connection point, so whatever
+      // time the screen-share steps just took already counts toward it.
+      const heldFor20Seconds = await convP.waitForCallDuration(20, 40000);
+      expect(heldFor20Seconds).toBeTruthy();
+
       await convP.endCall();
       await pageP.waitForTimeout(2000);
     });
 
     // =========================================================================
-    // STEP 14: Capture the group's Conversation ID (consumed downstream by
+    // STEP 18: Capture the group's Conversation ID (consumed downstream by
     // vaultDashboard.spec.js to scope a vault report to this exact run)
     // =========================================================================
-    await test.step('Step 14 - Capture conversation ID', async () => {
+    await test.step('Step 18 - Capture conversation ID', async () => {
       const convP = conversations.primary;
       const pageP = pages.primary;
       const details = new ConversationDetailsPage(pageP);

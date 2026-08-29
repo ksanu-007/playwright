@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import { execSync } from 'child_process';
 import VaultDashboardPage from '../pages/VaultDashboardPage.js';
 import VaultReportsPage from '../pages/VaultReportsPage.js';
+import Weblogin from '../pages/weblogin.js';
+import ConversationHelper from '../pages/conversation.js';
 import testData from '../utils/testData.json';
 
 async function loginToVault(page) {
@@ -53,7 +55,7 @@ async function loginToVault(page) {
 }
 
 test.describe('Vault Dashboard - Verify Update After HOPT Sanity', () => {
-  test('Run HOPT Sanity then verify vault dashboard reflects the update', async ({ page }, testInfo) => {
+  test('Run HOPT Sanity then verify vault dashboard reflects the update', async ({ page, browser }, testInfo) => {
     test.setTimeout(600000);
     const headedFlag = testInfo.project.use.headless === false ? ' --headed' : '';
 
@@ -141,6 +143,112 @@ test.describe('Vault Dashboard - Verify Update After HOPT Sanity', () => {
       console.log('Report stats:', JSON.stringify(stats));
 
       expect(stats.status).toMatch(/Completed/i);
+
+      // Content-level check: every exported row must actually belong to the
+      // requested conversation — a UI-reported "Completed" status only
+      // confirms compilation finished, not that the filter matched correctly.
+      const messages = await vaultReports.getReportMessages(reportName);
+      console.log(`Report "${reportName}" exported ${messages.length} message row(s)`);
+      expect(messages.length).toBe(Number(stats.messageCount));
+      for (const row of messages) {
+        expect(row.ContainerId).toBe(String(conversationId));
+      }
+    });
+
+    await test.step('Step 5 - Generate and verify a vault report by message keyword', async () => {
+      const vaultReports = new VaultReportsPage(page);
+      await vaultReports.open();
+
+      const reportName = `HOPTSanity_Keyword_${Date.now()}`;
+      await vaultReports.createReportByKeyword(reportName, 'Hello Team');
+      await vaultReports.verifyReportVisible(reportName);
+      console.log(`Report "${reportName}" submitted for keyword "Hello Team"`);
+
+      const finalRowText = await vaultReports.waitForReportCompleted(reportName, 120000);
+      console.log(`Report final row: ${finalRowText}`);
+
+      const stats = await vaultReports.getReportStats(reportName);
+      console.log('Report stats:', JSON.stringify(stats));
+
+      expect(stats.status).toMatch(/Completed/i);
+
+      // Content-level check: a keyword search is only correct if EVERY
+      // returned row actually contains the keyword — the UI status/count
+      // alone can't catch a filter that's silently too broad. The search
+      // itself is case-insensitive (confirmed live 2026-08-29: it correctly
+      // matched a pre-existing "Hello team, this is a test message..." row
+      // too), so the assertion matches that instead of requiring exact case.
+      const messages = await vaultReports.getReportMessages(reportName);
+      console.log(`Report "${reportName}" exported ${messages.length} message row(s)`);
+      expect(messages.length).toBe(Number(stats.messageCount));
+      expect(messages.length).toBeGreaterThan(0);
+      for (const row of messages) {
+        expect(row.Message.toLowerCase()).toContain('hello team');
+      }
+    });
+
+    await test.step('Step 6 - Generate and verify a vault report by message ID', async () => {
+      // The Message ID isn't something HOPTSanity.spec.js's own run ever
+      // surfaces (unlike CONVERSATION_ID) — it's read from the live web
+      // client's per-message "Message Details" panel (triple-dot menu on the
+      // message bubble), which needs a separate logged-in context since
+      // `page` here is the vault client, not the web messaging client.
+      const msgContext = await browser.newContext();
+      let messageId;
+      try {
+        const msgPage = await msgContext.newPage();
+        const webLogin = new Weblogin(msgPage);
+        await webLogin.loginWebApplication(
+          `${testData.logincreds.name}${testData.logincreds.email}`,
+          testData.logincreds.password
+        );
+        // A brand-new context has no cached session/app bundle, so the app
+        // takes noticeably longer to finish loading here than in a page
+        // that's already been used this run — wait for the same readiness
+        // signal HOPTSanity.spec.js waits on after login.
+        await msgPage.locator('text=How can I help?').first().waitFor({ state: 'visible', timeout: 60000 });
+
+        const conv = new ConversationHelper(msgPage);
+        await conv.dismissFeatureModal();
+
+        // The HOPT Sanity group just created is the most recent conversation.
+        const firstConv = msgPage.locator('div.scrollbox > div > div').first();
+        await firstConv.waitFor({ state: 'visible', timeout: 30000 });
+        await firstConv.click({ force: true });
+        await msgPage.waitForTimeout(1000);
+        await conv.dismissFeatureModal();
+
+        messageId = await conv.getMessageId('Hello Team');
+        console.log(`Captured Message ID for "Hello Team": ${messageId}`);
+      } finally {
+        await msgContext.close();
+      }
+
+      expect(messageId).toBeTruthy();
+
+      const vaultReports = new VaultReportsPage(page);
+      await vaultReports.open();
+
+      const reportName = `HOPTSanity_MsgId_${Date.now()}`;
+      await vaultReports.createReportByMessageId(reportName, messageId);
+      await vaultReports.verifyReportVisible(reportName);
+      console.log(`Report "${reportName}" submitted for message ID ${messageId}`);
+
+      const finalRowText = await vaultReports.waitForReportCompleted(reportName, 120000);
+      console.log(`Report final row: ${finalRowText}`);
+
+      const stats = await vaultReports.getReportStats(reportName);
+      console.log('Report stats:', JSON.stringify(stats));
+
+      expect(stats.status).toMatch(/Completed/i);
+
+      // Content-level check: a single-message-ID report must resolve to
+      // exactly that one message, not a broader/narrower match.
+      const messages = await vaultReports.getReportMessages(reportName);
+      console.log(`Report "${reportName}" exported ${messages.length} message row(s)`);
+      expect(messages.length).toBe(1);
+      expect(messages[0].Id).toBe(String(messageId));
+      expect(messages[0].Message).toBe('Hello Team');
     });
   });
 });

@@ -17,6 +17,22 @@ export default class ConversationHelper {
     }).catch(() => {});
   }
 
+  // A stray "Select Conversations" (Forward) screen was observed still
+  // covering the conversation view well after a forwardMessage() call had
+  // already completed successfully — confirmed live 2026-08-29, where it
+  // silently blocked a later hover-based action (deleteMessage's "⋮" toolbar
+  // never receiving real mouse-over, since something else was visually on
+  // top of the message even though the message's own DOM node was still
+  // "visible" by CSS). Cheap to guard against up front regardless of root
+  // cause, by closing it via Cancel if present.
+  async _closeStrayForwardPicker() {
+    const cancelBtn = this.page.getByRole('button', { name: 'Cancel' }).first();
+    if (await cancelBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await cancelBtn.click({ force: true }).catch(() => {});
+      await this.page.waitForTimeout(300);
+    }
+  }
+
   async _waitForTextarea(timeout = 15000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
@@ -402,7 +418,14 @@ export default class ConversationHelper {
       ]) {
         const btn = this.page.locator(sel).first();
         if (await btn.isVisible({ timeout: 300 }).catch(() => false)) {
-          await btn.click({ force: true, timeout: 2000 });
+          // A forced click was silently failing to actually join the call
+          // here — confirmed live 2026-08-30: acceptIncomingCall() reported
+          // success and the incoming-call dialog's real "Accept" button
+          // (button[title="Accept"]) was the one being matched, yet the
+          // caller never showed up in the call's own participant roster.
+          // Same lesson as weblogin.js's logout(): this app's click handlers
+          // need a real, actionability-checked click — force bypasses that.
+          await btn.click({ timeout: 2000 }).catch(() => btn.click({ force: true, timeout: 2000 }));
           await this.page.waitForTimeout(500);
           return true;
         }
@@ -709,12 +732,145 @@ export default class ConversationHelper {
     await this.page.waitForTimeout(800);
   }
 
-  // Verifies a specific message's text has disappeared — used to confirm a
-  // deletion synced in from iOS/Android. The Web client has no per-message
-  // delete action of its own in this app's UI (confirmed live 2026-08-10 via
-  // accessibility snapshot, title-attribute search, hover, and right-click —
-  // only Reply/Forward are exposed per message), so Web is verify-only for
-  // deletions, never the deleter.
+  // Returns the numeric Message ID shown in the "Message Details" side panel
+  // for the given message text. Discovered live 2026-08-28: hovering a
+  // message reveals a small floating toolbar (a "⋮" icon plus a reaction
+  // icon) anchored to the bubble's top-left corner; the "⋮" is a
+  // cursor:pointer div (no title/aria-label) wrapping an svg, and clicking it
+  // opens a dropdown (button.menuhover items) with Reply / Forward / Message
+  // Details / Delete. "Message Details" opens a right-side panel reading
+  // "Message ID: <n>" plus read receipts.
+  async getMessageId(messageText) {
+    await this._dismissOverlay();
+    await this._closeStrayForwardPicker();
+    // .last(): a just-sent message briefly has a second, stray exact-text
+    // match with no bubbleWrap ancestor (confirmed live 2026-08-29 while
+    // building deleteMessage) — .first() can resolve to that instead of the
+    // real bubble. .last() consistently lands on the actual rendered message.
+    const msg = this.page.getByText(messageText, { exact: true }).last();
+    await msg.waitFor({ state: 'visible', timeout: 10000 });
+    await msg.scrollIntoViewIfNeeded();
+    await this._dismissOverlay();
+
+    // The "⋮" toolbar only renders while the mouse sits over the bubble (its
+    // wrapper is width:0/height:0/overflow:hidden until then) — a layout
+    // shift between hover and click (e.g. the "Active Poll" sticky banner
+    // appearing) can knock the cursor off the bubble first. Re-hovering
+    // immediately before each check, rather than once up front, survives that.
+    const bubbleWrap = msg.locator('xpath=ancestor::div[contains(@class,"bubbleWrap")]').first();
+    const dotsIcon = bubbleWrap.locator('div[style*="cursor: pointer"]').first();
+    let dotsReady = false;
+    for (let attempt = 0; attempt < 3 && !dotsReady; attempt++) {
+      await msg.hover();
+      dotsReady = await dotsIcon.waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false);
+    }
+    if (!dotsReady) throw new Error(`getMessageId: "⋮" toolbar never appeared for message "${messageText}"`);
+    await dotsIcon.click({ force: true });
+
+    const detailsBtn = this.page.locator('button.menuhover', { hasText: 'Message Details' }).first();
+    await detailsBtn.waitFor({ state: 'visible', timeout: 5000 });
+    await detailsBtn.click({ force: true });
+
+    const idLabel = this.page.locator('//div[contains(text(),"Message ID")]').first();
+    await idLabel.waitFor({ state: 'visible', timeout: 5000 });
+    const text = await idLabel.textContent();
+    const match = text && text.match(/Message ID:?\s*(\d+)/i);
+    return match ? match[1] : null;
+  }
+
+  // Reacts to a message with a quick-pick emoji. The hover toolbar's second
+  // icon (first is "⋮") opens an emoji-picker-react panel — its top row is
+  // a "Frequently Used" quick-pick exposing aria-labels for shorthand codes
+  // ("+1", "-1", "raised hands", "clap", "handshake", "blush") rather than
+  // the emoji glyphs themselves. Discovered live 2026-08-29.
+  async reactToMessage(messageText, reactionLabel = '+1') {
+    await this._dismissOverlay();
+    await this._closeStrayForwardPicker();
+    const msg = this.page.getByText(messageText, { exact: true }).last();
+    await msg.waitFor({ state: 'visible', timeout: 10000 });
+    await msg.scrollIntoViewIfNeeded();
+    await this._dismissOverlay();
+
+    const bubbleWrap = msg.locator('xpath=ancestor::div[contains(@class,"bubbleWrap")]').first();
+    const toolbar = bubbleWrap.locator('div[style*="width: 54px"]').first();
+    const reactionIcon = toolbar.locator(':scope > div').nth(1);
+
+    let ready = false;
+    for (let attempt = 0; attempt < 5 && !ready; attempt++) {
+      await msg.hover();
+      ready = await reactionIcon.waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false);
+    }
+    if (!ready) throw new Error(`reactToMessage: reaction icon never appeared for message "${messageText}"`);
+    await msg.hover();
+    await reactionIcon.click({ force: true });
+
+    const emoji = this.page.locator(`.reactions-er-emoji-panel [aria-label="${reactionLabel}"]`).first();
+    await emoji.waitFor({ state: 'visible', timeout: 5000 });
+    await emoji.click({ force: true });
+    await this.page.waitForTimeout(500);
+  }
+
+  // Deletes a message via its "⋮" menu's Delete item, then confirms the
+  // "Delete Message — Are you sure...?" dialog. Discovered live 2026-08-29:
+  // this directly supersedes the 2026-08-10 finding on verifyMessageGone()
+  // below (that investigation checked hover/right-click/title-attributes and
+  // found no delete action — Delete turns out to live in the SAME "⋮"
+  // dropdown as Message Details, just not exposed via any of those signals).
+  // The dialog's CANCEL/DELETE controls are plain clickable text rendered
+  // uppercase via CSS over an actual "Delete" label, not necessarily real
+  // <button> elements — hence the case-insensitive text fallback below.
+  async deleteMessage(messageText) {
+    await this._dismissOverlay();
+    await this._closeStrayForwardPicker();
+    const msg = this.page.getByText(messageText, { exact: true }).last();
+    await msg.waitFor({ state: 'visible', timeout: 10000 });
+    await msg.scrollIntoViewIfNeeded();
+    await this._dismissOverlay();
+
+    const bubbleWrap = msg.locator('xpath=ancestor::div[contains(@class,"bubbleWrap")]').first();
+    const dotsIcon = bubbleWrap.locator('div[style*="cursor: pointer"]').first();
+    let dotsReady = false;
+    for (let attempt = 0; attempt < 5 && !dotsReady; attempt++) {
+      await msg.hover();
+      dotsReady = await dotsIcon.waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false);
+    }
+    if (!dotsReady) throw new Error(`deleteMessage: "⋮" toolbar never appeared for message "${messageText}"`);
+    await dotsIcon.click({ force: true });
+
+    const deleteBtn = this.page.locator('button.menuhover', { hasText: 'Delete' }).first();
+    await deleteBtn.waitFor({ state: 'visible', timeout: 5000 });
+    await deleteBtn.click({ force: true });
+
+    let confirmBtn = this.page.getByRole('button', { name: /^delete$/i }).first();
+    if (!(await confirmBtn.isVisible({ timeout: 3000 }).catch(() => false))) {
+      confirmBtn = this.page.locator('text=/^delete$/i').last();
+    }
+    await confirmBtn.waitFor({ state: 'visible', timeout: 5000 });
+    await confirmBtn.click({ force: true });
+    await this.page.waitForTimeout(500);
+  }
+
+  // Polls #elapsedTimeDisplay (see waitForCallConnected above) until the
+  // call's live duration reaches `seconds`, so a caller can guarantee the
+  // call was actually held open for a minimum stretch before hanging up.
+  async waitForCallDuration(seconds, timeout = 60000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      const text = (await this.page.locator('#elapsedTimeDisplay').first().textContent().catch(() => '')).trim();
+      const match = text.match(/^(\d{1,2}):(\d{2})$/);
+      if (match) {
+        const elapsed = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+        if (elapsed >= seconds) return true;
+      }
+      await this.page.waitForTimeout(1000);
+    }
+    return false;
+  }
+
+  // Verifies a specific message's text has disappeared — originally written
+  // to confirm a deletion synced in from iOS/Android, back when the 2026-08-10
+  // investigation above found no Web-side delete action. Now also reused by
+  // deleteMessage() itself to confirm a Web-initiated deletion took effect.
   async verifyMessageGone(text, timeout = 45000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {

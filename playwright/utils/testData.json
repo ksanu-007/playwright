@@ -6,31 +6,31 @@
       "vaultUrl" : "https://vault.netsferetest.com/#/login"
     },
     "logincreds": {
-      "name": "nutriglow",
+      "name": "moonlight",
       "email" : "@sanu.netsferetest.org",
       "password": "Abcd@1234567"
     },
     "userRange": {
-      "baseUserId": "autos",
+      "baseUserId": "moonlight",
       "emailDomain": "@sanu.netsferetest.org",
-      "startIndex": 101,
-      "endIndex": 110
+      "startIndex": 1,
+      "endIndex": 10
     },
     "vaultLogin": {
-       "username": "nutriglow@sanu.netsferetest.org",
+       "username": "moonlight@sanu.netsferetest.org",
       "password": "Abcd@1234567"
     },
     "conversationTestData": {
-      "user1": "nutriglow1",
-      "user2": "nutriglow2",
-      "user3": "nutriglow3",
-      "user4": "nutriglow4",
-      "user5": "nutriglow5",
-      "user6": "nutriglow6",
-      "user7": "nutriglow7",
-      "user8": "nutriglow8",
-      "user9": "nutriglow9",
-      "user10": "nutriglow10",
+      "user1": "moonlight1",
+      "user2": "moonlight2",
+      "user3": "moonlight3",
+      "user4": "moonlight4",
+      "user5": "moonlight5",
+      "user6": "moonlight6",
+      "user7": "moonlight7",
+      "user8": "moonlight8",
+      "user9": "moonlight9",
+      "user10": "moonlight10",
       "message": "Hi",
       "pollquestion": "Test Poll?",
       "option1": "Option A",
@@ -112,6 +112,48 @@
     "checkpointInterval": 100,
     "topicBlockSize": 50,
     "groupNamePrefix": "10 User High Volume Discussion"
-  }
+  },
 
+   "azuressologincreds": {
+      "name": "pmvu1",
+      "email" : "@sanu.netsferetest.org",
+      "password": "Netsfere@12"
+    },
+      "azuressoconversationTestData": {
+      "user1": "pmvu2",
+      "user2": "pmvu3",
+      "user3": "pmvu4",
+      "user4": "pmvu5",
+      "user5": "pmvu6",
+      "user6": "pmvu7",
+      "user7": "pmvu8",
+      "user8": "pmvu9",
+      "user9": "pmvu10",
+      "user10": "moonlight10",
+      "message": "Hi",
+      "pollquestion": "Test Poll?",
+      "option1": "Option A",
+      "option2": "Option B"
+    },
+    "adfsssologincreds": {
+      "name": "twinkleu1",
+      "email" : "@twinkle.netsferetest.org",
+      "password": "Infinite!23"
+    },
+      "adfsssoconversationTestData": {
+      "user1": "twinkle u2",
+      "user2": "twinkle u3",
+      "user3": "twinkle u4",
+      "user4": "twinkle u5",
+      "user5": "pmvu6",
+      "user6": "pmvu7",
+      "user7": "pmvu8",
+      "user8": "pmvu9",
+      "user9": "pmvu10",
+      "user10": "moonlight10",
+      "message": "Hi",
+      "pollquestion": "Test Poll?",
+      "option1": "Option A",
+      "option2": "Option B"
+    }
   }
