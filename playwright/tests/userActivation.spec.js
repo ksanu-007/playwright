@@ -99,7 +99,11 @@ test('Add and activate invited users', async ({ page }) => {
   // ================================
   const totalTime = ((Date.now() - allResults.startTime) / 1000).toFixed(1);
   const activated = activationResults.filter(r => r.success).length;
-  const activationFailed = activationResults.filter(r => !r.success).length;
+  // "Already activated" users come back as { success: false, skipped: true }
+  // from userActivation.js (a no-op, not a real failure) — excluding
+  // r.skipped here mirrors that file's own internal summary log, which
+  // already distinguishes skipped from failed the same way.
+  const activationFailed = activationResults.filter(r => !r.success && !r.skipped).length;
 
   console.log(`\n${'='.repeat(60)}`);
   console.log('FINAL REPORT');
@@ -149,7 +153,9 @@ test('Activate all existing invited users', async ({ page }) => {
     testData.logincreds.password
   );
 
-  const failureCount = activationResults.filter(r => !r.success).length;
+  // Same distinction as the test above: "already activated" rows are
+  // { success: false, skipped: true } — a no-op, not a real failure.
+  const failureCount = activationResults.filter(r => !r.success && !r.skipped).length;
   const successCount = activationResults.filter(r => r.success).length;
   console.log(`\nActivation complete: ${successCount} success, ${failureCount} failure`);
 

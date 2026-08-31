@@ -523,4 +523,17 @@ Time    Activity                              Duration
 
 ---
 
+## Running SSO Sanity Tests (ssohoptsanity.spec.js)
+
+```
+SSO_PROVIDER=azure npx playwright test tests/ssohoptsanity.spec.js --reporter=list
+SSO_PROVIDER=adfs  npx playwright test tests/ssohoptsanity.spec.js --reporter=list
+```
+
+Defaults to `azure` if omitted. Add `--headed` to watch it run.
+
+---
+
 **This framework demonstrates enterprise-grade automation architecture with 15+ years of best practices!**
+
+
